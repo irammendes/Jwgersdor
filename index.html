@@ -271,6 +271,12 @@
             margin-top: 5px;
         }
 
+        .info-message {
+            color: var(--secondary);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
         @media(max-width: 600px) {
             .header {
                 flex-direction: column;
@@ -466,6 +472,11 @@
             let isLoading = false;
             let generatedGames = [];
             let lastUpdateAttempt = 0;
+            let dataSource = 'cache'; // Pode ser 'caixa', 'alternativa', 'cache' ou 'exemplo'
+            
+            // Configurações de cache
+            const CACHE_KEY = 'lotofacil_cache';
+            const CACHE_EXPIRATION = 6 * 60 * 60 * 1000; // 6 horas em milissegundos
             
             // Inicialização
             initNumberGrid();
@@ -524,7 +535,7 @@
                     
                     // Prevenir atualizações muito rápidas (mínimo 10 segundos entre tentativas)
                     if (now - lastUpdateAttempt < 10000) {
-                        const secondsLeft = Math.ceil((10000 - (now - lastUpdateAttempt)) / 1000);
+                        const secondsLeft = Math.ceil((10000 - (now - lastUpdateAttempt)) / 1000;
                         showStatus(`Aguarde ${secondsLeft} segundos antes de atualizar novamente`, 'warning');
                         return;
                     }
@@ -616,64 +627,216 @@
                 showStatus('Conectando ao servidor de resultados...', 'info');
                 
                 try {
-                    // Tentativa com API oficial
-                    let data = await tryFetch('https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil');
-                    
-                    // Se falhar, tentar API alternativa
-                    if (!data) {
-                        showStatus('Tentando fonte alternativa de dados...', 'warning');
-                        data = await tryFetch('https://loteriascaixa-api.herokuapp.com/api/lotofacil');
+                    // Tentar primeiro o cache local
+                    const cachedData = getCachedData();
+                    if (cachedData && cachedData.length > 0) {
+                        resultados = cachedData;
+                        dataSource = 'cache';
+                        showStatus('Dados carregados do cache (offline)', 'warning');
+                        processResults();
+                        return;
                     }
                     
-                    // Se ainda sem dados, usar exemplos
-                    if (!data) {
-                        useSampleData();
-                        showStatus('Usando dados de exemplo. Atualize mais tarde para obter dados reais.', 'warning');
-                    } else {
-                        processData(data);
+                    // Tentar APIs em sequência
+                    const apiResponses = await Promise.any([
+                        tryCaixaApi(),
+                        tryAlternativeApi1(),
+                        tryAlternativeApi2()
+                    ].map(p => p.catch(e => null))); // Ignorar erros individuais
+                    
+                    if (apiResponses) {
+                        processData(apiResponses);
+                        cacheData(resultados);
                         showStatus('Dados atualizados com sucesso!', 'success');
+                    } else {
+                        useSampleData();
+                        showStatus('Usando dados de exemplo. Atualize mais tarde.', 'warning');
                     }
                 } catch (error) {
                     console.error("Erro ao carregar dados:", error);
-                    showStatus('Falha ao carregar dados. Verifique sua conexão.', 'error');
+                    const cachedData = getCachedData();
+                    if (cachedData && cachedData.length > 0) {
+                        resultados = cachedData;
+                        dataSource = 'cache';
+                        showStatus('Usando dados do cache devido a erro na conexão', 'warning');
+                    } else {
+                        useSampleData();
+                        showStatus('Falha na conexão. Usando dados de exemplo.', 'error');
+                    }
                 } finally {
                     isLoading = false;
                     updateButtonStates();
+                    processResults();
                 }
             }
-            
-            async function tryFetch(url) {
+
+            // API da Caixa com tratamento de CORS via proxy
+            async function tryCaixaApi() {
                 try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error('Resposta não OK');
-                    return await response.json();
+                    // Usando um proxy CORS para evitar bloqueios
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                    const apiUrl = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil';
+                    
+                    const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('API Caixa não respondeu');
+                    
+                    const data = await response.json();
+                    dataSource = 'caixa';
+                    return Array.isArray(data) ? data : [data];
                 } catch (error) {
-                    console.error(`Erro ao acessar ${url}:`, error);
+                    console.log("API Caixa falhou:", error);
                     return null;
                 }
             }
-            
+
+            // Primeira API alternativa
+            async function tryAlternativeApi1() {
+                try {
+                    const response = await fetch('https://loteriascaixa-api.herokuapp.com/api/lotofacil');
+                    if (!response.ok) throw new Error('API alternativa 1 falhou');
+                    
+                    const data = await response.json();
+                    dataSource = 'alternativa1';
+                    return data.slice(0, 20); // Limitar aos 20 últimos
+                } catch (error) {
+                    console.log("API alternativa 1 falhou:", error);
+                    return null;
+                }
+            }
+
+            // Segunda API alternativa (backup)
+            async function tryAlternativeApi2() {
+                try {
+                    const response = await fetch('https://brasilapi.com.br/api/loteria/v1/lotofacil');
+                    if (!response.ok) throw new Error('API alternativa 2 falhou');
+                    
+                    const data = await response.json();
+                    dataSource = 'alternativa2';
+                    
+                    // Formatar dados da BrasilAPI para o formato esperado
+                    const formattedData = data.concursos.map(concurso => ({
+                        concurso: concurso.numero,
+                        data: concurso.data,
+                        numeros: concurso.dezenas.map(Number).sort((a, b) => a - b)
+                    }));
+                    
+                    return formattedData.slice(0, 20); // Limitar aos 20 últimos
+                } catch (error) {
+                    console.log("API alternativa 2 falhou:", error);
+                    return null;
+                }
+            }
+
+            // Sistema de cache local
+            function getCachedData() {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (!cached) return null;
+                
+                try {
+                    const { data, timestamp } = JSON.parse(cached);
+                    
+                    // Verificar se o cache está expirado
+                    if (Date.now() - timestamp > CACHE_EXPIRATION) {
+                        return null;
+                    }
+                    
+                    return data;
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            function cacheData(data) {
+                try {
+                    const cache = {
+                        data: data,
+                        timestamp: Date.now(),
+                        source: dataSource
+                    };
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+                } catch (e) {
+                    console.error("Erro ao salvar cache:", e);
+                }
+            }
+
             function processData(data) {
-                if (Array.isArray(data)) {
-                    resultados = data.map(processResultItem);
-                } else {
-                    resultados = [processResultItem(data)];
+                try {
+                    if (Array.isArray(data)) {
+                        resultados = data.map(item => ({
+                            concurso: item.numero || item.concurso,
+                            data: item.dataApuracao || item.data,
+                            numeros: (item.listaDezenas || item.dezenas || []).map(Number).sort((a, b) => a - b)
+                        }));
+                    } else {
+                        resultados = [{
+                            concurso: data.numero || data.concurso,
+                            data: data.dataApuracao || data.data,
+                            numeros: (data.listaDezenas || data.dezenas || []).map(Number).sort((a, b) => a - b)
+                        }];
+                    }
+                    
+                    // Garantir que temos pelo menos 5 resultados
+                    if (resultados.length < 5) {
+                        const missing = 5 - resultados.length;
+                        for (let i = 0; i < missing; i++) {
+                            resultados.push(generateSampleResult(resultados[0].concurso - (i + 1)));
+                        }
+                    }
+                } catch (e) {
+                    console.error("Erro ao processar dados:", e);
+                    useSampleData();
+                }
+            }
+
+            function generateSampleResult(concurso) {
+                // Gerar um resultado aleatório para preencher quando não há dados suficientes
+                const randomNumbers = [];
+                while (randomNumbers.length < 15) {
+                    const num = Math.floor(Math.random() * 25) + 1;
+                    if (!randomNumbers.includes(num)) {
+                        randomNumbers.push(num);
+                    }
                 }
                 
-                // Limitar aos últimos 20 resultados
-                resultados = resultados.slice(0, 20);
-                calcularEstatisticas();
-                updateCharts();
-            }
-            
-            function processResultItem(item) {
                 return {
-                    concurso: item.numero || item.concurso,
-                    data: item.dataApuracao || item.data,
-                    numeros: (item.listaDezenas || item.dezenas || []).map(Number).sort((a, b) => a - b)
+                    concurso: concurso,
+                    data: new Date(Date.now() - (Math.random() * 30 * 24 * 60 * 60 * 1000)).toLocaleDateString(),
+                    numeros: randomNumbers.sort((a, b) => a - b)
                 };
             }
-            
+
+            function processResults() {
+                calcularEstatisticas();
+                updateCharts();
+                validateNumberInputs(); // Atualizar estado dos botões
+                
+                // Mostrar a fonte dos dados
+                let sourceMessage = '';
+                switch(dataSource) {
+                    case 'caixa':
+                        sourceMessage = 'Dados obtidos da Caixa Econômica';
+                        break;
+                    case 'alternativa1':
+                        sourceMessage = 'Dados obtidos de fonte alternativa 1';
+                        break;
+                    case 'alternativa2':
+                        sourceMessage = 'Dados obtidos de fonte alternativa 2';
+                        break;
+                    case 'cache':
+                        sourceMessage = 'Dados carregados do cache local';
+                        break;
+                    default:
+                        sourceMessage = 'Dados de exemplo utilizados';
+                }
+                
+                showStatus(sourceMessage, 'info');
+            }
+
             function updateButtonStates() {
                 generateBtn.disabled = isLoading || resultados.length === 0;
                 refreshBtn.disabled = isLoading;
@@ -696,6 +859,7 @@
                     { concurso: 2896, data: "23/03/2025", numeros: [5, 10, 15, 20, 25, 4, 9, 14, 19, 24, 3, 8, 13, 18, 23] }
                 ];
                 
+                dataSource = 'exemplo';
                 calcularEstatisticas();
                 updateCharts();
             }
@@ -899,7 +1063,18 @@
                     <p><strong>Dezenas quentes (mais sorteadas):</strong> ${maisFrequentes.join(', ')}</p>
                     <p><strong>Dezenas frias (menos sorteadas):</strong> ${menosFrequentes.join(', ')}</p>
                     <p><strong>Dezenas mais atrasadas:</strong> ${maisAtrasadas.join(', ')}</p>
+                    <p><small>Fonte: ${getDataSourceName()}</small></p>
                 `;
+            }
+            
+            function getDataSourceName() {
+                switch(dataSource) {
+                    case 'caixa': return 'Caixa Econômica';
+                    case 'alternativa1': return 'API Alternativa 1';
+                    case 'alternativa2': return 'API Alternativa 2';
+                    case 'cache': return 'Cache Local';
+                    default: return 'Dados de Exemplo';
+                }
             }
             
             function updateCharts() {
@@ -997,7 +1172,8 @@
                     const gamesToSave = {
                         date: new Date().toLocaleString(),
                         games: generatedGames,
-                        config: getCurrentConfig()
+                        config: getCurrentConfig(),
+                        dataSource: dataSource
                     };
                     
                     savedGames.unshift(gamesToSave);
@@ -1025,7 +1201,7 @@
             
             function loadSavedGames() {
                 try {
-                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || [];
+                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
                     
                     if (savedGames.length === 0) {
                         savedGamesList.innerHTML = '<p>Nenhum jogo salvo ainda.</p>';
@@ -1042,6 +1218,7 @@
                                         ${group.games.length} jogos | 
                                         Últimos ${group.config.lastGames} concursos | 
                                         ${group.config.missingRange} faltantes
+                                        <br>Fonte: ${group.dataSource || 'desconhecida'}
                                     </div>
                                 </div>
                                 <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
@@ -1087,7 +1264,7 @@
             // Função global para carregar jogos salvos
             window.loadSavedGame = function(index) {
                 try {
-                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || [];
+                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
                     
                     if (index >= savedGames.length) {
                         showStatus('Conjunto de jogos não encontrado', 'error');
@@ -1114,6 +1291,7 @@
                         .filter(n => !savedGame.config.excludedNumbers.includes(n));
                     
                     generatedGames = savedGame.games;
+                    dataSource = savedGame.dataSource || 'desconhecida';
                     displayResults(savedGame.games, missingNumbers);
                     showStatus(`Jogos carregados (salvos em ${savedGame.date})`, 'success');
                 } catch (error) {
