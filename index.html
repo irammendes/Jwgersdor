@@ -17,12 +17,18 @@
             --white: #ffffff;
         }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f7fa;
-            margin: 0;
             padding: 20px;
             color: #333;
+            line-height: 1.6;
         }
 
         .container {
@@ -36,20 +42,25 @@
 
         .header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
             border-bottom: 2px solid var(--secondary);
+            gap: 15px;
         }
 
         h1 {
             font-size: 24px;
             margin: 0;
+            color: var(--primary);
         }
 
         .btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             padding: 12px 20px;
             background: var(--secondary);
             color: white;
@@ -58,6 +69,7 @@
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
+            text-align: center;
         }
 
         .btn:hover {
@@ -70,21 +82,25 @@
             background: #95a5a6;
             cursor: not-allowed;
             transform: none;
+            opacity: 0.7;
         }
 
         .game-card {
             background: var(--white);
             border-left: 4px solid var(--success);
             margin-bottom: 20px;
-            padding: 15px 20px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .game-header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .game-numbers {
@@ -103,7 +119,7 @@
             background: var(--secondary);
             color: white;
             border-radius: 50%;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
         }
 
@@ -120,26 +136,37 @@
 
         .control-group {
             flex: 1 1 250px;
+            min-width: 200px;
         }
 
         label {
             font-weight: bold;
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            color: var(--primary);
         }
 
         input, select {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary);
         }
 
         .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             background: var(--warning);
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 5px 10px;
+            border-radius: 20px;
             font-weight: bold;
             font-size: 12px;
             color: white;
@@ -148,14 +175,14 @@
         .missing-list {
             background: var(--light);
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 25px;
         }
 
         .number-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+            gap: 10px;
             margin: 15px 0;
         }
 
@@ -169,17 +196,20 @@
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
+            user-select: none;
         }
 
         .grid-number.selected {
             background: var(--success);
             color: white;
+            transform: scale(1.1);
         }
 
         .grid-number:hover {
             transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .chart-container {
@@ -196,7 +226,6 @@
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
         }
 
         @keyframes spin {
@@ -207,21 +236,34 @@
             display: flex;
             border-bottom: 1px solid #ddd;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .tab {
             padding: 10px 20px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: rgba(0,0,0,0.05);
         }
 
         .tab.active {
             border-bottom-color: var(--secondary);
             font-weight: bold;
+            color: var(--primary);
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .tab-content.active {
@@ -235,75 +277,105 @@
         }
 
         .saved-games {
-            margin-top: 10px;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .saved-game {
             background: var(--light);
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 8px;
+            padding: 12px 15px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: transform 0.3s;
+        }
+
+        .saved-game:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
         .saved-game-date {
             font-size: 12px;
             color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .error-message {
+            background-color: rgba(231, 76, 60, 0.1);
             color: var(--danger);
-            font-size: 14px;
-            margin-top: 5px;
+            border-left: 4px solid var(--danger);
         }
 
         .success-message {
+            background-color: rgba(46, 204, 113, 0.1);
             color: var(--success);
-            font-size: 14px;
-            margin-top: 5px;
+            border-left: 4px solid var(--success);
         }
 
         .warning-message {
+            background-color: rgba(241, 196, 15, 0.1);
             color: var(--warning);
-            font-size: 14px;
-            margin-top: 5px;
+            border-left: 4px solid var(--warning);
         }
 
         .info-message {
+            background-color: rgba(52, 152, 219, 0.1);
             color: var(--secondary);
-            font-size: 14px;
-            margin-top: 5px;
+            border-left: 4px solid var(--secondary);
         }
 
-        @media(max-width: 600px) {
+        #statusMessage {
+            margin: 15px 0;
+        }
+
+        @media(max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
             .header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
             }
-
+            
             .btn {
                 width: 100%;
+                justify-content: center;
             }
-
+            
             .controls {
                 flex-direction: column;
             }
-
-            .number-grid {
-                grid-template-columns: repeat(5, 1fr);
+            
+            .control-group {
+                flex: 1 1 100%;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Cabeçalho -->
         <div class="header">
             <h1><i class="fas fa-magic"></i> Gerador Estratégico Lotofácil</h1>
-            <div>
+            <div style="display: flex; gap: 10px;">
                 <button class="btn" id="refreshBtn">
                     <i class="fas fa-sync-alt"></i> Atualizar Dados
                 </button>
@@ -313,12 +385,11 @@
             </div>
         </div>
 
-        <p>Gere jogos otimizados com dezenas estrategicamente calculadas com base nos últimos concursos da Lotofácil.</p>
+        <p style="margin-bottom: 20px;">Gere jogos otimizados com base nas estatísticas dos últimos concursos da Lotofácil.</p>
 
-        <!-- Controles principais -->
         <div class="controls">
             <div class="control-group">
-                <label for="gameQuantity"><i class="fas fa-list-ol"></i> Quant. de jogos:</label>
+                <label for="gameQuantity"><i class="fas fa-list-ol"></i> Quantidade de jogos:</label>
                 <select id="gameQuantity">
                     <option value="1">1 jogo</option>
                     <option value="3">3 jogos</option>
@@ -347,18 +418,17 @@
             </div>
         </div>
 
-        <!-- Filtros adicionais -->
         <div class="controls">
             <div class="control-group">
                 <label for="fixedNumbers"><i class="fas fa-thumbtack"></i> Fixar dezenas:</label>
                 <input type="text" id="fixedNumbers" placeholder="Ex: 3,7,15">
-                <div id="fixedNumbersError" class="error-message"></div>
+                <div id="fixedNumbersError" class="error-message" style="display: none;"></div>
             </div>
 
             <div class="control-group">
                 <label for="excludedNumbers"><i class="fas fa-ban"></i> Excluir dezenas:</label>
                 <input type="text" id="excludedNumbers" placeholder="Ex: 5,10,24">
-                <div id="excludedNumbersError" class="error-message"></div>
+                <div id="excludedNumbersError" class="error-message" style="display: none;"></div>
             </div>
 
             <div class="control-group">
@@ -383,22 +453,18 @@
             </div>
         </div>
 
-        <!-- Seletor visual de números -->
         <div class="game-card">
             <h3><i class="fas fa-mouse-pointer"></i> Seletor de Números</h3>
             <p>Clique nos números para fixá-los nos seus jogos:</p>
             <div class="number-grid" id="numberGrid"></div>
         </div>
 
-        <!-- Mensagens de status -->
         <div id="statusMessage"></div>
 
-        <!-- Dezenas faltantes -->
         <div class="missing-list" id="missingInfo">
             <p><i class="fas fa-info-circle"></i> Clique em "Gerar Jogos" para analisar dezenas faltantes.</p>
         </div>
 
-        <!-- Estatísticas e gráficos -->
         <div class="game-card">
             <div class="tabs">
                 <div class="tab active" data-tab="stats">Estatísticas</div>
@@ -423,14 +489,12 @@
             </div>
         </div>
 
-        <!-- Resultados dos Jogos -->
         <div id="resultsContainer">
             <div class="game-card" style="text-align: center; background-color: var(--light);">
                 <p><strong>Seus jogos gerados aparecerão aqui.</strong></p>
             </div>
         </div>
         
-        <!-- Salvamento de jogos -->
         <div class="game-card save-section">
             <h3><i class="fas fa-save"></i> Salvar Jogos</h3>
             <button class="btn" id="saveGamesBtn">
@@ -446,38 +510,53 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos do DOM
-            const generateBtn = document.getElementById('generateBtn');
-            const refreshBtn = document.getElementById('refreshBtn');
-            const resultsContainer = document.getElementById('resultsContainer');
-            const missingInfo = document.getElementById('missingInfo');
-            const statsContent = document.getElementById('statsContent');
-            const frequencyContent = document.getElementById('frequencyContent');
-            const delaysContent = document.getElementById('delaysContent');
-            const tabs = document.querySelectorAll('.tab');
-            const saveGamesBtn = document.getElementById('saveGamesBtn');
-            const savedGamesList = document.getElementById('savedGamesList');
-            const numberGrid = document.getElementById('numberGrid');
-            const fixedNumbersInput = document.getElementById('fixedNumbers');
-            const excludedNumbersInput = document.getElementById('excludedNumbers');
-            const fixedNumbersError = document.getElementById('fixedNumbersError');
-            const excludedNumbersError = document.getElementById('excludedNumbersError');
-            const statusMessage = document.getElementById('statusMessage');
-            
+            const elements = {
+                generateBtn: document.getElementById('generateBtn'),
+                refreshBtn: document.getElementById('refreshBtn'),
+                resultsContainer: document.getElementById('resultsContainer'),
+                missingInfo: document.getElementById('missingInfo'),
+                statsContent: document.getElementById('statsContent'),
+                frequencyContent: document.getElementById('frequencyContent'),
+                delaysContent: document.getElementById('delaysContent'),
+                tabs: document.querySelectorAll('.tab'),
+                saveGamesBtn: document.getElementById('saveGamesBtn'),
+                savedGamesList: document.getElementById('savedGamesList'),
+                numberGrid: document.getElementById('numberGrid'),
+                fixedNumbersInput: document.getElementById('fixedNumbers'),
+                excludedNumbersInput: document.getElementById('excludedNumbers'),
+                fixedNumbersError: document.getElementById('fixedNumbersError'),
+                excludedNumbersError: document.getElementById('excludedNumbersError'),
+                statusMessage: document.getElementById('statusMessage'),
+                gameQuantity: document.getElementById('gameQuantity'),
+                missingRange: document.getElementById('missingRange'),
+                lastGames: document.getElementById('lastGames'),
+                maxLastDraw: document.getElementById('maxLastDraw'),
+                balanceMode: document.getElementById('balanceMode')
+            };
+
             // Gráficos
-            let frequencyChart = null;
-            let delaysChart = null;
+            let charts = {
+                frequency: null,
+                delays: null
+            };
             
             // Dados
-            let resultados = [];
-            let isLoading = false;
-            let generatedGames = [];
-            let lastUpdateAttempt = 0;
-            let dataSource = 'cache'; // Pode ser 'caixa', 'alternativa', 'cache' ou 'exemplo'
+            let state = {
+                resultados: [],
+                isLoading: false,
+                generatedGames: [],
+                lastUpdateAttempt: 0,
+                dataSource: null
+            };
             
-            // Configurações de cache
-            const CACHE_KEY = 'lotofacil_cache';
-            const CACHE_EXPIRATION = 6 * 60 * 60 * 1000; // 6 horas em milissegundos
-            
+            // Constantes
+            const constants = {
+                CACHE_KEY: 'lotofacil_cache_v2',
+                CACHE_EXPIRATION: 6 * 60 * 60 * 1000, // 6 horas
+                MIN_GAMES: 5,
+                MAX_SAVED_SETS: 10
+            };
+
             // Inicialização
             initNumberGrid();
             loadData();
@@ -485,14 +564,14 @@
             setupEventListeners();
             
             function initNumberGrid() {
-                numberGrid.innerHTML = '';
+                elements.numberGrid.innerHTML = '';
                 for (let i = 1; i <= 25; i++) {
-                    const num = document.createElement('div');
-                    num.className = 'grid-number';
-                    num.textContent = i.toString().padStart(2, '0');
-                    num.dataset.number = i;
-                    num.addEventListener('click', toggleNumberSelection);
-                    numberGrid.appendChild(num);
+                    const numElement = document.createElement('div');
+                    numElement.className = 'grid-number';
+                    numElement.textContent = i.toString().padStart(2, '0');
+                    numElement.dataset.number = i;
+                    numElement.addEventListener('click', toggleNumberSelection);
+                    elements.numberGrid.appendChild(numElement);
                 }
             }
             
@@ -504,102 +583,110 @@
             function updateFixedNumbers() {
                 const selected = Array.from(document.querySelectorAll('.grid-number.selected'))
                     .map(el => parseInt(el.dataset.number));
-                fixedNumbersInput.value = selected.join(',');
+                elements.fixedNumbersInput.value = selected.join(',');
                 validateNumberInputs();
             }
             
             function setupEventListeners() {
-                // Botão Gerar Jogos
-                generateBtn.addEventListener('click', function() {
-                    if (isLoading) {
-                        showStatus('Aguarde, os dados estão sendo carregados...', 'warning');
-                        return;
-                    }
-                    
-                    if (resultados.length === 0) {
-                        showStatus('Nenhum dado disponível. Atualize os dados primeiro.', 'error');
-                        refreshBtn.focus();
-                        return;
-                    }
-                    
-                    generateGames();
-                });
-                
-                // Botão Atualizar Dados
-                refreshBtn.addEventListener('click', function() {
-                    const now = Date.now();
-                    if (isLoading) {
-                        showStatus('Já está atualizando, aguarde...', 'warning');
-                        return;
-                    }
-                    
-                    // Prevenir atualizações muito rápidas (mínimo 10 segundos entre tentativas)
-                    if (now - lastUpdateAttempt < 10000) {
-                        const secondsLeft = Math.ceil((10000 - (now - lastUpdateAttempt)) / 1000;
-                        showStatus(`Aguarde ${secondsLeft} segundos antes de atualizar novamente`, 'warning');
-                        return;
-                    }
-                    
-                    lastUpdateAttempt = now;
-                    loadData();
-                });
-                
-                // Botão Salvar Jogos
-                saveGamesBtn.addEventListener('click', function() {
-                    if (generatedGames.length === 0) {
-                        showStatus('Nenhum jogo para salvar. Gere jogos primeiro.', 'error');
-                        generateBtn.focus();
-                        return;
-                    }
-                    
-                    if (confirm('Deseja salvar estes jogos?')) {
-                        saveGames();
-                    }
-                });
+                // Botões
+                elements.generateBtn.addEventListener('click', handleGenerateClick);
+                elements.refreshBtn.addEventListener('click', handleRefreshClick);
+                elements.saveGamesBtn.addEventListener('click', handleSaveClick);
                 
                 // Tabs
-                tabs.forEach(tab => {
-                    tab.addEventListener('click', () => {
-                        tabs.forEach(t => t.classList.remove('active'));
-                        tab.classList.add('active');
-                        
-                        document.querySelectorAll('.tab-content').forEach(content => {
-                            content.classList.remove('active');
-                        });
-                        
-                        document.getElementById(`${tab.dataset.tab}Content`).classList.add('active');
-                    });
+                elements.tabs.forEach(tab => {
+                    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
                 });
                 
-                // Inputs de números
-                fixedNumbersInput.addEventListener('input', validateNumberInputs);
-                excludedNumbersInput.addEventListener('input', validateNumberInputs);
+                // Inputs
+                elements.fixedNumbersInput.addEventListener('input', validateNumberInputs);
+                elements.excludedNumbersInput.addEventListener('input', validateNumberInputs);
+                
+                // Atualizar seleção quando o input é alterado manualmente
+                elements.fixedNumbersInput.addEventListener('change', function() {
+                    updateNumberGridSelection(validateNumberInput(this.value));
+                });
+            }
+            
+            function handleGenerateClick() {
+                if (state.isLoading) {
+                    showStatus('Aguarde, os dados estão sendo carregados...', 'warning');
+                    return;
+                }
+                
+                if (state.resultados.length === 0) {
+                    showStatus('Nenhum dado disponível. Atualize os dados primeiro.', 'error');
+                    elements.refreshBtn.focus();
+                    return;
+                }
+                
+                generateGames();
+            }
+            
+            function handleRefreshClick() {
+                const now = Date.now();
+                if (state.isLoading) {
+                    showStatus('Já está atualizando, aguarde...', 'warning');
+                    return;
+                }
+                
+                if (now - state.lastUpdateAttempt < 10000) {
+                    const secondsLeft = Math.ceil((10000 - (now - state.lastUpdateAttempt)) / 1000);
+                    showStatus(`Aguarde ${secondsLeft} segundos antes de atualizar novamente`, 'warning');
+                    return;
+                }
+                
+                state.lastUpdateAttempt = now;
+                loadData();
+            }
+            
+            function handleSaveClick() {
+                if (state.generatedGames.length === 0) {
+                    showStatus('Nenhum jogo para salvar. Gere jogos primeiro.', 'error');
+                    elements.generateBtn.focus();
+                    return;
+                }
+                
+                if (confirm('Deseja salvar estes jogos?')) {
+                    saveGames();
+                }
+            }
+            
+            function switchTab(tabName) {
+                // Atualizar tabs
+                elements.tabs.forEach(t => t.classList.remove('active'));
+                document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+                
+                // Atualizar conteúdo
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}Content`).classList.add('active');
             }
             
             function validateNumberInputs() {
                 // Valida números fixos
-                const fixedNumbers = validateNumberInput(fixedNumbersInput.value);
+                const fixedNumbers = validateNumberInput(elements.fixedNumbersInput.value);
                 if (fixedNumbers.length > 15) {
-                    fixedNumbersError.textContent = 'Máximo de 15 números fixos';
-                    generateBtn.disabled = true;
+                    elements.fixedNumbersError.textContent = 'Máximo de 15 números fixos';
+                    elements.fixedNumbersError.style.display = 'block';
+                    elements.generateBtn.disabled = true;
                 } else {
-                    fixedNumbersError.textContent = '';
+                    elements.fixedNumbersError.style.display = 'none';
                 }
                 
                 // Valida números excluídos
-                const excludedNumbers = validateNumberInput(excludedNumbersInput.value);
+                const excludedNumbers = validateNumberInput(elements.excludedNumbersInput.value);
                 if (excludedNumbers.length > 20) {
-                    excludedNumbersError.textContent = 'Máximo de 20 números excluídos';
-                    generateBtn.disabled = true;
+                    elements.excludedNumbersError.textContent = 'Máximo de 20 números excluídos';
+                    elements.excludedNumbersError.style.display = 'block';
+                    elements.generateBtn.disabled = true;
                 } else {
-                    excludedNumbersError.textContent = '';
+                    elements.excludedNumbersError.style.display = 'none';
                 }
                 
-                // Atualiza grid de seleção
-                updateNumberGridSelection(fixedNumbers);
-                
                 // Atualiza estado do botão
-                generateBtn.disabled = isLoading || resultados.length === 0 || 
+                elements.generateBtn.disabled = state.isLoading || state.resultados.length === 0 || 
                     fixedNumbers.length > 15 || excludedNumbers.length > 20;
             }
             
@@ -620,128 +707,85 @@
             }
             
             async function loadData() {
-                if (isLoading) return;
+                if (state.isLoading) return;
                 
-                isLoading = true;
+                state.isLoading = true;
                 updateButtonStates();
                 showStatus('Conectando ao servidor de resultados...', 'info');
                 
                 try {
                     // Tentar primeiro o cache local
                     const cachedData = getCachedData();
-                    if (cachedData && cachedData.length > 0) {
-                        resultados = cachedData;
-                        dataSource = 'cache';
+                    if (cachedData && cachedData.length >= constants.MIN_GAMES) {
+                        state.resultados = cachedData;
+                        state.dataSource = 'cache';
                         showStatus('Dados carregados do cache (offline)', 'warning');
                         processResults();
                         return;
                     }
                     
-                    // Tentar APIs em sequência
-                    const apiResponses = await Promise.any([
-                        tryCaixaApi(),
-                        tryAlternativeApi1(),
-                        tryAlternativeApi2()
-                    ].map(p => p.catch(e => null))); // Ignorar erros individuais
-                    
-                    if (apiResponses) {
-                        processData(apiResponses);
-                        cacheData(resultados);
+                    // Tentar API principal (BrasilAPI)
+                    const apiResponse = await tryBrasilAPI();
+                    if (apiResponse) {
+                        processData(apiResponse);
+                        cacheData(state.resultados);
                         showStatus('Dados atualizados com sucesso!', 'success');
                     } else {
+                        // Se a API falhar, usar dados de exemplo
                         useSampleData();
                         showStatus('Usando dados de exemplo. Atualize mais tarde.', 'warning');
                     }
                 } catch (error) {
                     console.error("Erro ao carregar dados:", error);
                     const cachedData = getCachedData();
-                    if (cachedData && cachedData.length > 0) {
-                        resultados = cachedData;
-                        dataSource = 'cache';
+                    if (cachedData && cachedData.length >= constants.MIN_GAMES) {
+                        state.resultados = cachedData;
+                        state.dataSource = 'cache';
                         showStatus('Usando dados do cache devido a erro na conexão', 'warning');
                     } else {
                         useSampleData();
                         showStatus('Falha na conexão. Usando dados de exemplo.', 'error');
                     }
                 } finally {
-                    isLoading = false;
+                    state.isLoading = false;
                     updateButtonStates();
                     processResults();
                 }
             }
 
-            // API da Caixa com tratamento de CORS via proxy
-            async function tryCaixaApi() {
-                try {
-                    // Usando um proxy CORS para evitar bloqueios
-                    const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                    const apiUrl = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil';
-                    
-                    const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    if (!response.ok) throw new Error('API Caixa não respondeu');
-                    
-                    const data = await response.json();
-                    dataSource = 'caixa';
-                    return Array.isArray(data) ? data : [data];
-                } catch (error) {
-                    console.log("API Caixa falhou:", error);
-                    return null;
-                }
-            }
-
-            // Primeira API alternativa
-            async function tryAlternativeApi1() {
-                try {
-                    const response = await fetch('https://loteriascaixa-api.herokuapp.com/api/lotofacil');
-                    if (!response.ok) throw new Error('API alternativa 1 falhou');
-                    
-                    const data = await response.json();
-                    dataSource = 'alternativa1';
-                    return data.slice(0, 20); // Limitar aos 20 últimos
-                } catch (error) {
-                    console.log("API alternativa 1 falhou:", error);
-                    return null;
-                }
-            }
-
-            // Segunda API alternativa (backup)
-            async function tryAlternativeApi2() {
+            // API principal - BrasilAPI (oficial e confiável)
+            async function tryBrasilAPI() {
                 try {
                     const response = await fetch('https://brasilapi.com.br/api/loteria/v1/lotofacil');
-                    if (!response.ok) throw new Error('API alternativa 2 falhou');
+                    if (!response.ok) throw new Error('API não respondeu');
                     
                     const data = await response.json();
-                    dataSource = 'alternativa2';
+                    state.dataSource = 'brasilapi';
                     
-                    // Formatar dados da BrasilAPI para o formato esperado
+                    // Formatar dados para o formato esperado
                     const formattedData = data.concursos.map(concurso => ({
                         concurso: concurso.numero,
                         data: concurso.data,
                         numeros: concurso.dezenas.map(Number).sort((a, b) => a - b)
-                    }));
+                    })).sort((a, b) => b.concurso - a.concurso); // Ordenar do mais recente
                     
-                    return formattedData.slice(0, 20); // Limitar aos 20 últimos
+                    return formattedData;
                 } catch (error) {
-                    console.log("API alternativa 2 falhou:", error);
+                    console.log("BrasilAPI falhou:", error);
                     return null;
                 }
             }
 
             // Sistema de cache local
             function getCachedData() {
-                const cached = localStorage.getItem(CACHE_KEY);
+                const cached = localStorage.getItem(constants.CACHE_KEY);
                 if (!cached) return null;
                 
                 try {
                     const { data, timestamp } = JSON.parse(cached);
                     
                     // Verificar se o cache está expirado
-                    if (Date.now() - timestamp > CACHE_EXPIRATION) {
+                    if (Date.now() - timestamp > constants.CACHE_EXPIRATION) {
                         return null;
                     }
                     
@@ -756,9 +800,9 @@
                     const cache = {
                         data: data,
                         timestamp: Date.now(),
-                        source: dataSource
+                        source: state.dataSource
                     };
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+                    localStorage.setItem(constants.CACHE_KEY, JSON.stringify(cache));
                 } catch (e) {
                     console.error("Erro ao salvar cache:", e);
                 }
@@ -766,25 +810,18 @@
 
             function processData(data) {
                 try {
-                    if (Array.isArray(data)) {
-                        resultados = data.map(item => ({
-                            concurso: item.numero || item.concurso,
-                            data: item.dataApuracao || item.data,
-                            numeros: (item.listaDezenas || item.dezenas || []).map(Number).sort((a, b) => a - b)
-                        }));
-                    } else {
-                        resultados = [{
-                            concurso: data.numero || data.concurso,
-                            data: data.dataApuracao || data.data,
-                            numeros: (data.listaDezenas || data.dezenas || []).map(Number).sort((a, b) => a - b)
-                        }];
+                    if (!Array.isArray(data)) {
+                        throw new Error("Dados não são um array");
                     }
                     
-                    // Garantir que temos pelo menos 5 resultados
-                    if (resultados.length < 5) {
-                        const missing = 5 - resultados.length;
+                    // Ordenar por concurso (mais recente primeiro)
+                    state.resultados = data.sort((a, b) => b.concurso - a.concurso);
+                    
+                    // Garantir que temos pelo menos o mínimo de resultados
+                    if (state.resultados.length < constants.MIN_GAMES) {
+                        const missing = constants.MIN_GAMES - state.resultados.length;
                         for (let i = 0; i < missing; i++) {
-                            resultados.push(generateSampleResult(resultados[0].concurso - (i + 1)));
+                            state.resultados.push(generateSampleResult(state.resultados[0].concurso - (i + 1)));
                         }
                     }
                 } catch (e) {
@@ -810,48 +847,8 @@
                 };
             }
 
-            function processResults() {
-                calcularEstatisticas();
-                updateCharts();
-                validateNumberInputs(); // Atualizar estado dos botões
-                
-                // Mostrar a fonte dos dados
-                let sourceMessage = '';
-                switch(dataSource) {
-                    case 'caixa':
-                        sourceMessage = 'Dados obtidos da Caixa Econômica';
-                        break;
-                    case 'alternativa1':
-                        sourceMessage = 'Dados obtidos de fonte alternativa 1';
-                        break;
-                    case 'alternativa2':
-                        sourceMessage = 'Dados obtidos de fonte alternativa 2';
-                        break;
-                    case 'cache':
-                        sourceMessage = 'Dados carregados do cache local';
-                        break;
-                    default:
-                        sourceMessage = 'Dados de exemplo utilizados';
-                }
-                
-                showStatus(sourceMessage, 'info');
-            }
-
-            function updateButtonStates() {
-                generateBtn.disabled = isLoading || resultados.length === 0;
-                refreshBtn.disabled = isLoading;
-                
-                if (isLoading) {
-                    generateBtn.innerHTML = '<span class="loading"></span> Aguarde...';
-                    refreshBtn.innerHTML = '<span class="loading"></span> Atualizando...';
-                } else {
-                    generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
-                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
-                }
-            }
-            
             function useSampleData() {
-                resultados = [
+                state.resultados = [
                     { concurso: 2900, data: "01/04/2025", numeros: [1, 2, 3, 5, 8, 9, 12, 14, 16, 18, 20, 21, 23, 24, 25] },
                     { concurso: 2899, data: "30/03/2025", numeros: [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 22, 23, 24, 25, 10] },
                     { concurso: 2898, data: "27/03/2025", numeros: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 1, 3, 5] },
@@ -859,21 +856,50 @@
                     { concurso: 2896, data: "23/03/2025", numeros: [5, 10, 15, 20, 25, 4, 9, 14, 19, 24, 3, 8, 13, 18, 23] }
                 ];
                 
-                dataSource = 'exemplo';
+                state.dataSource = 'exemplo';
+            }
+            
+            function processResults() {
                 calcularEstatisticas();
                 updateCharts();
+                validateNumberInputs();
+                
+                // Mostrar a fonte dos dados
+                showStatus(getDataSourceMessage(), 'info');
+            }
+
+            function getDataSourceMessage() {
+                switch(state.dataSource) {
+                    case 'brasilapi': return 'Dados obtidos da BrasilAPI (oficial)';
+                    case 'cache': return 'Dados carregados do cache local';
+                    case 'exemplo': return 'Dados de exemplo utilizados';
+                    default: return 'Fonte de dados desconhecida';
+                }
+            }
+
+            function updateButtonStates() {
+                elements.generateBtn.disabled = state.isLoading || state.resultados.length === 0;
+                elements.refreshBtn.disabled = state.isLoading;
+                
+                if (state.isLoading) {
+                    elements.generateBtn.innerHTML = '<span class="loading"></span> Aguarde...';
+                    elements.refreshBtn.innerHTML = '<span class="loading"></span> Atualizando...';
+                } else {
+                    elements.generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
+                    elements.refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
+                }
             }
             
             function generateGames() {
-                if (isLoading) return;
+                if (state.isLoading) return;
                 
-                const quantity = parseInt(document.getElementById('gameQuantity').value);
-                const [minMissing, maxMissing] = document.getElementById('missingRange').value.split('-').map(Number);
-                const lastGames = parseInt(document.getElementById('lastGames').value);
-                const fixedNumbers = validateNumberInput(document.getElementById('fixedNumbers').value.trim());
-                const excludedNumbers = validateNumberInput(document.getElementById('excludedNumbers').value.trim());
-                const maxLastDrawAllowed = parseInt(document.getElementById('maxLastDraw').value);
-                const balanceMode = document.getElementById('balanceMode').value;
+                const quantity = parseInt(elements.gameQuantity.value);
+                const [minMissing, maxMissing] = elements.missingRange.value.split('-').map(Number);
+                const lastGames = parseInt(elements.lastGames.value);
+                const fixedNumbers = validateNumberInput(elements.fixedNumbersInput.value.trim());
+                const excludedNumbers = validateNumberInput(elements.excludedNumbersInput.value.trim());
+                const maxLastDrawAllowed = parseInt(elements.maxLastDraw.value);
+                const balanceMode = elements.balanceMode.value;
                 
                 if (fixedNumbers.length > 15) {
                     showStatus('Você pode fixar no máximo 15 números.', 'error');
@@ -885,49 +911,55 @@
                     return;
                 }
                 
-                if (resultados.length === 0) {
+                if (state.resultados.length === 0) {
                     showStatus('Nenhum dado disponível. Tente atualizar.', 'error');
                     return;
                 }
                 
-                generateBtn.innerHTML = '<span class="loading"></span> Gerando...';
-                generateBtn.disabled = true;
+                elements.generateBtn.innerHTML = '<span class="loading"></span> Gerando...';
+                elements.generateBtn.disabled = true;
                 
                 // Processamento assíncrono para não travar a UI
                 setTimeout(() => {
-                    const missingNumbers = getMissingNumbers(lastGames).filter(n => !excludedNumbers.includes(n));
-                    generatedGames = [];
-                    
-                    for (let i = 0; i < quantity; i++) {
-                        let tentativa = 0;
-                        let game;
+                    try {
+                        const missingNumbers = getMissingNumbers(lastGames).filter(n => !excludedNumbers.includes(n));
+                        state.generatedGames = [];
                         
-                        do {
-                            game = generateGame(missingNumbers, minMissing, maxMissing, fixedNumbers);
-                            tentativa++;
+                        for (let i = 0; i < quantity; i++) {
+                            let tentativa = 0;
+                            let game;
                             
-                            // Verificar limite de dezenas do último sorteio
-                            const lastResult = resultados[0]?.numeros || [];
-                            const countLast = game.numbers.filter(n => lastResult.includes(n)).length;
+                            do {
+                                game = generateGame(missingNumbers, minMissing, maxMissing, fixedNumbers);
+                                tentativa++;
+                                
+                                // Verificar limite de dezenas do último sorteio
+                                const lastResult = state.resultados[0]?.numeros || [];
+                                const countLast = game.numbers.filter(n => lastResult.includes(n)).length;
+                                
+                                // Verificar balanceamento pares/ímpares
+                                const isBalanced = checkBalance(game.numbers, balanceMode);
+                                
+                                if (countLast <= maxLastDrawAllowed && isBalanced) break;
+                            } while (tentativa < 100);
                             
-                            // Verificar balanceamento pares/ímpares
-                            const isBalanced = checkBalance(game.numbers, balanceMode);
-                            
-                            if (countLast <= maxLastDrawAllowed && isBalanced) break;
-                        } while (tentativa < 100);
+                            state.generatedGames.push(game);
+                        }
                         
-                        generatedGames.push(game);
+                        displayResults(state.generatedGames, missingNumbers);
+                        showStatus(`${quantity} jogos gerados com sucesso!`, 'success');
+                    } catch (error) {
+                        console.error("Erro ao gerar jogos:", error);
+                        showStatus('Erro ao gerar jogos. Tente novamente.', 'error');
+                    } finally {
+                        elements.generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
+                        elements.generateBtn.disabled = false;
                     }
-                    
-                    displayResults(generatedGames, missingNumbers);
-                    generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
-                    generateBtn.disabled = false;
-                    showStatus(`Jogos gerados com sucesso!`, 'success');
                 }, 100);
             }
             
             function getMissingNumbers(lastGames) {
-                const recentResults = resultados.slice(0, lastGames);
+                const recentResults = state.resultados.slice(0, lastGames);
                 const drawnNumbers = new Set();
                 
                 recentResults.forEach(result => {
@@ -979,8 +1011,8 @@
             
             function displayResults(games, allMissing) {
                 // Atualizar informação de dezenas faltantes
-                missingInfo.innerHTML = `
-                    <h3><i class="fas fa-info-circle"></i> Dezenas Faltantes (últimos ${document.getElementById('lastGames').value} concursos)</h3>
+                elements.missingInfo.innerHTML = `
+                    <h3><i class="fas fa-info-circle"></i> Dezenas Faltantes (últimos ${elements.lastGames.value} concursos)</h3>
                     <div class="game-numbers">
                         ${allMissing.length > 0 ? 
                             allMissing.map(num => `<span class="numero missing">${num.toString().padStart(2, '0')}</span>`).join('') : 
@@ -1001,7 +1033,7 @@
                         <div class="game-card">
                             <div class="game-header">
                                 <h3>Jogo ${index + 1}</h3>
-                                <div>
+                                <div style="display: flex; gap: 8px;">
                                     <span class="badge">${game.missing.length} faltantes</span>
                                     <span class="badge" style="background: var(--primary)">${pares}P ${impares}I</span>
                                 </div>
@@ -1019,16 +1051,16 @@
                     `;
                 });
                 
-                resultsContainer.innerHTML = html;
+                elements.resultsContainer.innerHTML = html;
             }
             
             function calcularEstatisticas() {
-                if (resultados.length === 0) {
-                    statsContent.innerHTML = '<p>Nenhum dado disponível.</p>';
+                if (state.resultados.length === 0) {
+                    elements.statsContent.innerHTML = '<p>Nenhum dado disponível.</p>';
                     return;
                 }
                 
-                const todas = resultados.flatMap(r => r.numeros);
+                const todas = state.resultados.flatMap(r => r.numeros);
                 const contagem = {};
                 
                 for (let i = 1; i <= 25; i++) contagem[i] = 0;
@@ -1042,7 +1074,7 @@
                 const ausencias = {};
                 for (let i = 1; i <= 25; i++) ausencias[i] = 0;
                 
-                resultados.forEach((r, idx) => {
+                state.resultados.forEach((r, idx) => {
                     for (let i = 1; i <= 25; i++) {
                         if (!r.numeros.includes(i)) {
                             ausencias[i]++;
@@ -1057,9 +1089,9 @@
                     .slice(0, 5)
                     .map(([n, a]) => `${n} (${a} concursos)`);
                 
-                statsContent.innerHTML = `
-                    <p><strong>Último sorteio:</strong> Concurso ${resultados[0].concurso} (${resultados[0].data})</p>
-                    <p><strong>Dezenas sorteadas:</strong> ${resultados[0].numeros.join(', ')}</p>
+                elements.statsContent.innerHTML = `
+                    <p><strong>Último sorteio:</strong> Concurso ${state.resultados[0].concurso} (${state.resultados[0].data})</p>
+                    <p><strong>Dezenas sorteadas:</strong> ${state.resultados[0].numeros.join(', ')}</p>
                     <p><strong>Dezenas quentes (mais sorteadas):</strong> ${maisFrequentes.join(', ')}</p>
                     <p><strong>Dezenas frias (menos sorteadas):</strong> ${menosFrequentes.join(', ')}</p>
                     <p><strong>Dezenas mais atrasadas:</strong> ${maisAtrasadas.join(', ')}</p>
@@ -1068,20 +1100,19 @@
             }
             
             function getDataSourceName() {
-                switch(dataSource) {
-                    case 'caixa': return 'Caixa Econômica';
-                    case 'alternativa1': return 'API Alternativa 1';
-                    case 'alternativa2': return 'API Alternativa 2';
+                switch(state.dataSource) {
+                    case 'brasilapi': return 'BrasilAPI';
                     case 'cache': return 'Cache Local';
-                    default: return 'Dados de Exemplo';
+                    case 'exemplo': return 'Dados de Exemplo';
+                    default: return 'Desconhecida';
                 }
             }
             
             function updateCharts() {
-                if (resultados.length === 0) return;
+                if (state.resultados.length === 0) return;
                 
                 // Dados para gráficos
-                const todas = resultados.flatMap(r => r.numeros);
+                const todas = state.resultados.flatMap(r => r.numeros);
                 const contagem = {};
                 for (let i = 1; i <= 25; i++) contagem[i] = 0;
                 todas.forEach(n => contagem[n]++);
@@ -1089,7 +1120,7 @@
                 const ausencias = {};
                 for (let i = 1; i <= 25; i++) ausencias[i] = 0;
                 
-                resultados.forEach((r, idx) => {
+                state.resultados.forEach((r, idx) => {
                     for (let i = 1; i <= 25; i++) {
                         if (!r.numeros.includes(i)) {
                             ausencias[i]++;
@@ -1107,13 +1138,25 @@
                         y: {
                             beginAtZero: true
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Frequência: ${context.raw}`;
+                                }
+                            }
+                        }
                     }
                 };
                 
                 // Gráfico de frequência
-                if (frequencyChart) frequencyChart.destroy();
+                if (charts.frequency) charts.frequency.destroy();
                 const frequencyCtx = document.getElementById('frequencyChart').getContext('2d');
-                frequencyChart = new Chart(frequencyCtx, {
+                charts.frequency = new Chart(frequencyCtx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(contagem),
@@ -1135,9 +1178,9 @@
                 });
                 
                 // Gráfico de atrasos
-                if (delaysChart) delaysChart.destroy();
+                if (charts.delays) charts.delays.destroy();
                 const delaysCtx = document.getElementById('delaysChart').getContext('2d');
-                delaysChart = new Chart(delaysCtx, {
+                charts.delays = new Chart(delaysCtx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(ausencias),
@@ -1153,7 +1196,18 @@
                             borderWidth: 1
                         }]
                     },
-                    options: chartOptions
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Atraso: ${context.raw} concursos`;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             }
             
@@ -1161,19 +1215,19 @@
                 try {
                     let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
                     
-                    // Limitar a 10 conjuntos de jogos salvos
-                    if (savedGames.length >= 10) {
-                        if (!confirm('Você já tem 10 conjuntos salvos. Deseja substituir o mais antigo?')) {
+                    // Limitar a quantidade máxima de conjuntos salvos
+                    if (savedGames.length >= constants.MAX_SAVED_SETS) {
+                        if (!confirm(`Você já tem ${constants.MAX_SAVED_SETS} conjuntos salvos. Deseja substituir o mais antigo?`)) {
                             return;
                         }
-                        savedGames = savedGames.slice(0, 9);
+                        savedGames = savedGames.slice(0, constants.MAX_SAVED_SETS - 1);
                     }
                     
                     const gamesToSave = {
                         date: new Date().toLocaleString(),
-                        games: generatedGames,
+                        games: state.generatedGames,
                         config: getCurrentConfig(),
-                        dataSource: dataSource
+                        dataSource: state.dataSource
                     };
                     
                     savedGames.unshift(gamesToSave);
@@ -1189,22 +1243,29 @@
             
             function getCurrentConfig() {
                 return {
-                    quantity: document.getElementById('gameQuantity').value,
-                    missingRange: document.getElementById('missingRange').value,
-                    lastGames: document.getElementById('lastGames').value,
-                    fixedNumbers: validateNumberInput(document.getElementById('fixedNumbers').value.trim()),
-                    excludedNumbers: validateNumberInput(document.getElementById('excludedNumbers').value.trim()),
-                    maxLastDraw: document.getElementById('maxLastDraw').value,
-                    balanceMode: document.getElementById('balanceMode').value
+                    quantity: elements.gameQuantity.value,
+                    missingRange: elements.missingRange.value,
+                    lastGames: elements.lastGames.value,
+                    fixedNumbers: validateNumberInput(elements.fixedNumbersInput.value.trim()),
+                    excludedNumbers: validateNumberInput(elements.excludedNumbersInput.value.trim()),
+                    maxLastDraw: elements.maxLastDraw.value,
+                    balanceMode: elements.balanceMode.value
                 };
             }
             
             function loadSavedGames() {
                 try {
                     let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
+                    if (typeof savedGames === 'string') {
+                        savedGames = JSON.parse(savedGames);
+                    }
+                    
+                    if (!Array.isArray(savedGames)) {
+                        savedGames = [];
+                    }
                     
                     if (savedGames.length === 0) {
-                        savedGamesList.innerHTML = '<p>Nenhum jogo salvo ainda.</p>';
+                        elements.savedGamesList.innerHTML = '<p>Nenhum jogo salvo ainda.</p>';
                         return;
                     }
                     
@@ -1229,10 +1290,10 @@
                         `;
                     });
                     
-                    savedGamesList.innerHTML = html;
+                    elements.savedGamesList.innerHTML = html;
                 } catch (error) {
                     console.error("Erro ao carregar jogos salvos:", error);
-                    savedGamesList.innerHTML = '<p class="error-message">Erro ao carregar jogos salvos</p>';
+                    elements.savedGamesList.innerHTML = '<p class="error-message">Erro ao carregar jogos salvos</p>';
                 }
             }
             
@@ -1244,18 +1305,25 @@
                     info: 'info-circle'
                 };
                 
-                statusMessage.innerHTML = `
-                    <div class="${type}-message">
-                        <i class="fas fa-${icons[type]}"></i>
-                        ${message}
-                    </div>
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}-message`;
+                messageDiv.innerHTML = `
+                    <i class="fas fa-${icons[type]}"></i>
+                    <span>${message}</span>
                 `;
+                
+                // Limpar mensagens anteriores
+                while (elements.statusMessage.firstChild) {
+                    elements.statusMessage.removeChild(elements.statusMessage.firstChild);
+                }
+                
+                elements.statusMessage.appendChild(messageDiv);
                 
                 // Remove mensagem após 5 segundos (exceto erros)
                 if (type !== 'error') {
                     setTimeout(() => {
-                        if (statusMessage.innerHTML.includes(message)) {
-                            statusMessage.innerHTML = '';
+                        if (elements.statusMessage.contains(messageDiv)) {
+                            elements.statusMessage.removeChild(messageDiv);
                         }
                     }, 5000);
                 }
@@ -1264,7 +1332,7 @@
             // Função global para carregar jogos salvos
             window.loadSavedGame = function(index) {
                 try {
-                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
+                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || []);
                     
                     if (index >= savedGames.length) {
                         showStatus('Conjunto de jogos não encontrado', 'error');
@@ -1274,13 +1342,13 @@
                     const savedGame = savedGames[index];
                     
                     // Aplicar configurações salvas
-                    document.getElementById('gameQuantity').value = savedGame.config.quantity;
-                    document.getElementById('missingRange').value = savedGame.config.missingRange;
-                    document.getElementById('lastGames').value = savedGame.config.lastGames;
-                    document.getElementById('fixedNumbers').value = savedGame.config.fixedNumbers.join(',');
-                    document.getElementById('excludedNumbers').value = savedGame.config.excludedNumbers.join(',');
-                    document.getElementById('maxLastDraw').value = savedGame.config.maxLastDraw;
-                    document.getElementById('balanceMode').value = savedGame.config.balanceMode;
+                    elements.gameQuantity.value = savedGame.config.quantity;
+                    elements.missingRange.value = savedGame.config.missingRange;
+                    elements.lastGames.value = savedGame.config.lastGames;
+                    elements.fixedNumbersInput.value = savedGame.config.fixedNumbers.join(',');
+                    elements.excludedNumbersInput.value = savedGame.config.excludedNumbers.join(',');
+                    elements.maxLastDraw.value = savedGame.config.maxLastDraw;
+                    elements.balanceMode.value = savedGame.config.balanceMode;
                     
                     // Atualizar UI
                     updateNumberGridSelection(savedGame.config.fixedNumbers);
@@ -1290,8 +1358,8 @@
                     const missingNumbers = getMissingNumbers(savedGame.config.lastGames)
                         .filter(n => !savedGame.config.excludedNumbers.includes(n));
                     
-                    generatedGames = savedGame.games;
-                    dataSource = savedGame.dataSource || 'desconhecida';
+                    state.generatedGames = savedGame.games;
+                    state.dataSource = savedGame.dataSource || 'desconhecida';
                     displayResults(savedGame.games, missingNumbers);
                     showStatus(`Jogos carregados (salvos em ${savedGame.date})`, 'success');
                 } catch (error) {
