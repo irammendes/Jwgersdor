@@ -1,415 +1,988 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotofácil Pro - Gerador Estratégico</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --light: #ecf0f1;
-            --white: #ffffff;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador Estratégico Lotofácil</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-Uq+4Cq4U6rITclOKDwXng3uShfolKZqV6czN5tCQy9UblCHApV3a4Vr8Ch3vY7jmEa5RwCeD+fXPt+0U8jWJ/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --secondary: #3498db;
+      --success: #27ae60;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --light: #ecf0f1;
+      --white: #ffffff;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f6fa;
-            margin: 0;
-            padding: 20px;
-            color: var(--primary);
-        }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: var(--white);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--white);
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid var(--secondary);
-        }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--secondary);
+    }
 
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+    h1 {
+      font-size: 24px;
+      margin: 0;
+    }
 
-        .control-group {
-            background: var(--light);
-            padding: 15px;
-            border-radius: 10px;
-        }
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
 
-        .game-card {
-            background: var(--white);
-            border-left: 5px solid var(--success);
-            margin-bottom: 20px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
-        }
+    .btn:hover {
+      background: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-        .numero {
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--secondary);
-            color: var(--white);
-            border-radius: 50%;
-            font-weight: bold;
-            margin: 5px;
-            transition: all 0.3s ease;
-        }
+    .btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+      transform: none;
+    }
 
-        .excluded {
-            opacity: 0.4;
-            transform: scale(0.8);
-            background: var(--danger);
-        }
+    .game-card {
+      background: var(--white);
+      border-left: 4px solid var(--success);
+      margin-bottom: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
 
-        .charts-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 30px 0;
-        }
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .statistics-panel {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 25px;
-        }
+    .game-numbers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 15px 0;
+    }
 
-        .cycle-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
+    .numero {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--secondary);
+      color: white;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: bold;
+    }
 
-        .cycle-table th,
-        .cycle-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
+    .missing {
+      background: var(--danger);
+    }
 
-        .cycle-table th {
-            background: var(--primary);
-            color: var(--white);
-        }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 20px 0;
+    }
 
-        .btn {
-            padding: 12px 25px;
-            background: var(--secondary);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+    .control-group {
+      flex: 1 1 250px;
+    }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
 
-        @media (max-width: 768px) {
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
-    </style>
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .badge {
+      background: var(--warning);
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 12px;
+      color: white;
+    }
+
+    .missing-list {
+      background: var(--light);
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 25px;
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin: 15px 0;
+    }
+
+    .grid-number {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--light);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .grid-number.selected {
+      background: var(--success);
+      color: white;
+    }
+
+    .grid-number:hover {
+      transform: scale(1.1);
+    }
+
+    .chart-container {
+      height: 300px;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 15px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+      border-bottom-color: var(--secondary);
+      font-weight: bold;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .save-section {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .saved-games {
+      margin-top: 10px;
+    }
+
+    .saved-game {
+      background: var(--light);
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .saved-game-date {
+      font-size: 12px;
+      color: #7f8c8d;
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    @media(max-width: 600px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .number-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-chart-line"></i> Gerador Estratégico Lotofácil 5.0</h1>
-            <div>
-                <button class="btn" id="generateBtn">
-                    <i class="fas fa-dice"></i> Gerar Jogos
-                </button>
-                <button class="btn" id="exportBtn" style="display: none; background: var(--success);">
-                    <i class="fas fa-file-export"></i> Exportar
-                </button>
-            </div>
-        </div>
-
-        <div class="controls-grid">
-            <div class="control-group">
-                <label><i class="fas fa-sliders-h"></i> Configurações Principais</label>
-                <div class="controls">
-                    <input type="number" id="gameQuantity" min="1" max="20" value="5" class="form-control">
-                    <select id="missingRange" class="form-control">
-                        <option value="3-5">3-5 Faltantes</option>
-                        <option value="4-6">4-6 Faltantes</option>
-                        <option value="5-7">5-7 Faltantes</option>
-                    </select>
-                    <select id="lastGames" class="form-control">
-                        <option value="5">Últimos 5 concursos</option>
-                        <option value="10" selected>Últimos 10 concursos</option>
-                        <option value="15">Últimos 15 concursos</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label><i class="fas fa-filter"></i> Filtros Avançados</label>
-                <div class="controls">
-                    <input type="text" id="fixedNumbers" placeholder="Fixar dezenas (ex: 3,7,15)">
-                    <input type="text" id="excludedNumbers" placeholder="Excluir dezenas (ex: 5,10,24)">
-                    <select id="maxLastDraw" class="form-control">
-                        <option value="15">Máx. 15 repetidas do último</option>
-                        <option value="10">Máx. 10 repetidas do último</option>
-                        <option value="5">Máx. 5 repetidas do último</option>
-                    </select>
-                    <select id="balanceMode" class="form-control">
-                        <option value="flex">Balanceamento Flexível</option>
-                        <option value="strict" selected>Balanceamento Rigoroso</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="charts-container">
-            <div class="chart-container">
-                <canvas id="frequencyChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="probabilityChart"></canvas>
-            </div>
-        </div>
-
-        <div class="statistics-panel">
-            <h3><i class="fas fa-history"></i> Estatísticas de Ciclos</h3>
-            <div id="cycleCounter"></div>
-            <table class="cycle-table">
-                <thead>
-                    <tr>
-                        <th>Dezena</th>
-                        <th>Ausência Atual</th>
-                        <th>Recorde</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="absenceTable"></tbody>
-            </table>
-        </div>
-
-        <div id="resultsContainer"></div>
+  <div class="container">
+    <!-- Cabeçalho -->
+    <div class="header">
+      <h1><i class="fas fa-magic"></i> Gerador Estratégico Lotofácil</h1>
+      <div>
+        <button class="btn" id="refreshBtn">
+          <i class="fas fa-sync-alt"></i> Atualizar Dados
+        </button>
+        <button class="btn" id="generateBtn">
+          <i class="fas fa-dice"></i> Gerar Jogos
+        </button>
+      </div>
     </div>
 
-    <script>
-        const state = {
-            resultados: [],
-            generatedGames: [],
-            cycles: {
-                current: 1,
-                absenceStreaks: {},
-                maxAbsence: {},
-                numbersInCycle: new Set()
-            },
-            charts: {
-                frequency: null,
-                probability: null
-            }
-        };
+    <p>Gere jogos otimizados com dezenas estrategicamente calculadas com base nos últimos concursos da Lotofácil.</p>
 
-        // Core Functions
-        async function loadData() {
-            try {
-                state.cycles = resetCycles(); // Reiniciar ciclos ao carregar novos dados
-                const response = await fetch('https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil');
-                const data = await response.json() || [];
-                
-                state.resultados = Array.isArray(data) ? data : [data];
-                state.resultados.forEach(sorteio => {
-                    processResults(sorteio.listaDezenas.map(Number));
-                });
-                showSuccess('Dados atualizados via API!');
-            } catch (error) {
-                useSampleData();
-                showWarning('Usando dados de exemplo');
-            }
-            updateProbabilityChart();
+    <!-- Controles principais -->
+    <div class="controls">
+      <div class="control-group">
+        <label for="gameQuantity"><i class="fas fa-list-ol"></i> Quant. de jogos:</label>
+        <select id="gameQuantity">
+          <option value="1">1 jogo</option>
+          <option value="3">3 jogos</option>
+          <option value="5" selected>5 jogos</option>
+          <option value="10">10 jogos</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="missingRange"><i class="fas fa-chart-line"></i> Dezenas faltantes por jogo:</label>
+        <select id="missingRange">
+          <option value="3-5">3-5</option>
+          <option value="4-6">4-6</option>
+          <option value="5-7">5-7</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="lastGames"><i class="fas fa-history"></i> Concursos analisados:</label>
+        <select id="lastGames">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Filtros adicionais -->
+    <div class="controls">
+      <div class="control-group">
+        <label for="fixedNumbers"><i class="fas fa-thumbtack"></i> Fixar dezenas:</label>
+        <input type="text" id="fixedNumbers" placeholder="Ex: 3,7,15">
+        <div id="fixedNumbersError" class="error-message"></div>
+      </div>
+
+      <div class="control-group">
+        <label for="excludedNumbers"><i class="fas fa-ban"></i> Excluir dezenas:</label>
+        <input type="text" id="excludedNumbers" placeholder="Ex: 5,10,24">
+        <div id="excludedNumbersError" class="error-message"></div>
+      </div>
+
+      <div class="control-group">
+        <label for="maxLastDraw"><i class="fas fa-sync"></i> Máx. dezenas do último sorteio:</label>
+        <select id="maxLastDraw">
+          <option value="15">Sem limite</option>
+          <option value="10">10</option>
+          <option value="8">8</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="balanceMode"><i class="fas fa-equals"></i> Balancear pares/ímpares:</label>
+        <select id="balanceMode">
+          <option value="none">Não verificar</option>
+          <option value="normal" selected>Sim (entre 6 e 9)</option>
+          <option value="strict">Estrito (7 ou 8)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Seletor visual de números -->
+    <div class="game-card">
+      <h3><i class="fas fa-mouse-pointer"></i> Seletor de Números</h3>
+      <p>Clique nos números para fixá-los nos seus jogos:</p>
+      <div class="number-grid" id="numberGrid"></div>
+    </div>
+
+    <!-- Dezenas faltantes -->
+    <div class="missing-list" id="missingInfo">
+      <p><i class="fas fa-info-circle"></i> Clique em "Gerar Jogos" para analisar dezenas faltantes.</p>
+    </div>
+
+    <!-- Estatísticas e gráficos -->
+    <div class="game-card">
+      <div class="tabs">
+        <div class="tab active" data-tab="stats">Estatísticas</div>
+        <div class="tab" data-tab="frequency">Frequência</div>
+        <div class="tab" data-tab="delays">Atrasos</div>
+      </div>
+      
+      <div class="tab-content active" id="statsContent">
+        <p><i class="fas fa-spinner fa-spin"></i> Carregando estatísticas...</p>
+      </div>
+      
+      <div class="tab-content" id="frequencyContent">
+        <div class="chart-container">
+          <canvas id="frequencyChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="delaysContent">
+        <div class="chart-container">
+          <canvas id="delaysChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados dos Jogos -->
+    <div id="resultsContainer">
+      <div class="game-card" style="text-align: center; background-color: var(--light);">
+        <p><strong>Seus jogos gerados aparecerão aqui.</strong></p>
+      </div>
+    </div>
+    
+    <!-- Salvamento de jogos -->
+    <div class="game-card save-section">
+      <h3><i class="fas fa-save"></i> Salvar Jogos</h3>
+      <button class="btn" id="saveGamesBtn">
+        <i class="fas fa-save"></i> Salvar Estes Jogos
+      </button>
+      
+      <div class="saved-games" id="savedGamesList">
+        <p>Nenhum jogo salvo ainda.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elementos do DOM
+      const generateBtn = document.getElementById('generateBtn');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const resultsContainer = document.getElementById('resultsContainer');
+      const missingInfo = document.getElementById('missingInfo');
+      const statsContent = document.getElementById('statsContent');
+      const frequencyContent = document.getElementById('frequencyContent');
+      const delaysContent = document.getElementById('delaysContent');
+      const tabs = document.querySelectorAll('.tab');
+      const saveGamesBtn = document.getElementById('saveGamesBtn');
+      const savedGamesList = document.getElementById('savedGamesList');
+      const numberGrid = document.getElementById('numberGrid');
+      const fixedNumbersInput = document.getElementById('fixedNumbers');
+      const excludedNumbersInput = document.getElementById('excludedNumbers');
+      const fixedNumbersError = document.getElementById('fixedNumbersError');
+      const excludedNumbersError = document.getElementById('excludedNumbersError');
+      
+      // Gráficos
+      let frequencyChart = null;
+      let delaysChart = null;
+      
+      // Dados
+      let resultados = [];
+      let isLoading = false;
+      let generatedGames = [];
+      
+      // Inicialização
+      initNumberGrid();
+      loadData();
+      loadSavedGames();
+      setupEventListeners();
+      
+      function initNumberGrid() {
+        for (let i = 1; i <= 25; i++) {
+          const num = document.createElement('div');
+          num.className = 'grid-number';
+          num.textContent = i.toString().padStart(2, '0');
+          num.dataset.number = i;
+          num.addEventListener('click', toggleNumberSelection);
+          numberGrid.appendChild(num);
         }
-
-        function generateGames() {
-            const params = getGenerationParams();
-            validateInputs(params);
+      }
+      
+      function toggleNumberSelection(e) {
+        e.target.classList.toggle('selected');
+        updateFixedNumbers();
+      }
+      
+      function updateFixedNumbers() {
+        const selected = Array.from(document.querySelectorAll('.grid-number.selected'))
+          .map(el => parseInt(el.dataset.number));
+        fixedNumbersInput.value = selected.join(',');
+      }
+      
+      function setupEventListeners() {
+        // Botões
+        generateBtn.addEventListener('click', generateGames);
+        refreshBtn.addEventListener('click', loadData);
+        saveGamesBtn.addEventListener('click', saveGames);
+        
+        // Tabs
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
             
-            state.generatedGames = [];
-            for(let i = 0; i < params.quantity; i++) {
-                const game = createValidGame(params);
-                state.generatedGames.push(game);
-                processResults(game.numbers);
-            }
-            
-            updateInterface();
-            updateCharts();
-            state.exportBtn.style.display = 'block';
-        }
-
-        // Statistics and Cycles Management
-        function processResults(numbers) {
-            numbers = numbers.map(Number);
-            
-            // Update cycles
-            numbers.forEach(n => {
-                state.cycles.numbersInCycle.add(n);
-                state.cycles.absenceStreaks[n] = 0;
+            document.querySelectorAll('.tab-content').forEach(content => {
+              content.classList.remove('active');
             });
-
-            // Check for new cycle
-            if(state.cycles.numbersInCycle.size >= 25) {
-                state.cycles.current++;
-                state.cycles.numbersInCycle.clear();
-                Array.from({length: 25}, (_, i) => i+1).forEach(n => {
-                    state.cycles.absenceStreaks[n] = 0;
-                });
-            }
-
-            // Update absence streaks
-            Array.from({length: 25}, (_, i) => i+1).forEach(n => {
-                if(!numbers.includes(n)) {
-                    state.cycles.absenceStreaks[n] = (state.cycles.absenceStreaks[n] || 0) + 1;
-                    state.cycles.maxAbsence[n] = Math.max(
-                        state.cycles.maxAbsence[n] || 0, 
-                        state.cycles.absenceStreaks[n]
-                    );
-                }
-            });
-
-            updateCycleTable();
-        }
-
-        // Visualization
-        function updateCycleTable() {
-            let tableHTML = '';
-            for(let num = 1; num <= 25; num++) {
-                tableHTML += `
-                    <tr>
-                        <td>${num.toString().padStart(2, '0')}</td>
-                        <td>${state.cycles.absenceStreaks[num] || 0}</td>
-                        <td>${state.cycles.maxAbsence[num] || '-'}</td>
-                        <td>${state.cycles.numbersInCycle.has(num) ? '✅' : '❌'}</td>
-                    </tr>
-                `;
-            }
-            document.getElementById('absenceTable').innerHTML = tableHTML;
-            document.getElementById('cycleCounter').textContent = 
-                `Ciclo Atual: ${state.cycles.current} | ` +
-                `Números no ciclo: ${state.cycles.numbersInCycle.size}/25`;
-        }
-
-        function updateCharts() {
-            updateFrequencyChart();
-            updateProbabilityChart();
-        }
-
-        function updateFrequencyChart() {
-            if(state.charts.frequency) state.charts.frequency.destroy();
             
-            const ctx = document.getElementById('frequencyChart').getContext('2d');
-            state.charts.frequency = new Chart(ctx, {
-                type: 'bar',
-                data: getChartData(),
-                options: getChartOptions('Frequência nos Jogos Gerados')
-            });
-        }
-
-        function updateProbabilityChart() {
-            if(state.charts.probability) state.charts.probability.destroy();
-            
-            const ctx = document.getElementById('probabilityChart').getContext('2d');
-            state.charts.probability = new Chart(ctx, {
-                type: 'line',
-                data: getProbabilityData(),
-                options: getChartOptions('Probabilidade Histórica (%)', true)
-            });
-        }
-
-        // Utility Functions
-        function resetCycles() {
-            return {
-                current: 1,
-                absenceStreaks: {},
-                maxAbsence: {},
-                numbersInCycle: new Set()
-            };
-        }
-
-        function getGenerationParams() {
-            return {
-                quantity: parseInt(document.getElementById('gameQuantity').value),
-                missingRange: document.getElementById('missingRange').value.split('-').map(Number),
-                lastGames: parseInt(document.getElementById('lastGames').value),
-                fixedNumbers: parseNumberList('fixedNumbers'),
-                excludedNumbers: parseNumberList('excludedNumbers'),
-                maxLastDraw: parseInt(document.getElementById('maxLastDraw').value),
-                balanceMode: document.getElementById('balanceMode').value
-            };
-        }
-
-        function parseNumberList(inputId) {
-            return document.getElementById(inputId).value
-                .split(',')
-                .map(n => parseInt(n.trim()))
-                .filter(n => !isNaN(n) && n >= 1 && n <= 25);
-        }
-
-        function useSampleData() {
-            state.resultados = [
-                {"numeros":[1,2,3,5,8,9,12,14,16,18,20,21,23,24,25]},
-                {"numeros":[3,5,7,9,11,13,15,17,19,21,22,23,24,25,10]},
-                {"numeros":[2,4,6,8,10,12,14,16,18,20,22,24,1,3,5]}
-            ].map(sorteio => ({ listaDezenas: sorteio.numeros }));
-        }
-
-        // Initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            state.exportBtn = document.getElementById('exportBtn');
-            document.getElementById('generateBtn').addEventListener('click', generateGames);
-            document.getElementById('exportBtn').addEventListener('click', exportToCSV);
-            loadData();
+            document.getElementById(`${tab.dataset.tab}Content`).classList.add('active');
+          });
         });
-
-        function exportToCSV() {
-            const csvContent = state.generatedGames
-                .map((game, i) => `Jogo ${i+1};${game.numbers.map(n => n.toString().padStart(2, '0')).join(';')}`)
-                .join('\n');
-            
-            const blob = new Blob(["\ufeff" + csvContent], {type: 'text/csv;charset=utf-8'});
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `lotofacil_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
+        
+        // Inputs de números
+        fixedNumbersInput.addEventListener('input', validateNumberInputs);
+        excludedNumbersInput.addEventListener('input', validateNumberInputs);
+      }
+      
+      function validateNumberInputs() {
+        // Valida números fixos
+        const fixedNumbers = validateNumberInput(fixedNumbersInput.value);
+        if (fixedNumbers.length > 15) {
+          fixedNumbersError.textContent = 'Máximo de 15 números fixos';
+          generateBtn.disabled = true;
+        } else {
+          fixedNumbersError.textContent = '';
+          generateBtn.disabled = isLoading;
         }
-
-        // [Restante das funções auxiliares...]
-    </script>
+        
+        // Valida números excluídos
+        const excludedNumbers = validateNumberInput(excludedNumbersInput.value);
+        if (excludedNumbers.length > 20) {
+          excludedNumbersError.textContent = 'Máximo de 20 números excluídos';
+          generateBtn.disabled = true;
+        } else {
+          excludedNumbersError.textContent = '';
+          generateBtn.disabled = isLoading;
+        }
+        
+        // Atualiza grid de seleção
+        updateNumberGridSelection(fixedNumbers);
+      }
+      
+      function validateNumberInput(input) {
+        if (!input.trim()) return [];
+        
+        return input.split(',')
+          .map(n => parseInt(n.trim()))
+          .filter(n => !isNaN(n) && n >= 1 && n <= 25)
+          .filter((n, i, arr) => arr.indexOf(n) === i); // Remove duplicatas
+      }
+      
+      function updateNumberGridSelection(numbers) {
+        document.querySelectorAll('.grid-number').forEach(el => {
+          const num = parseInt(el.dataset.number);
+          el.classList.toggle('selected', numbers.includes(num));
+        });
+      }
+      
+      function loadData() {
+        if (isLoading) return;
+        
+        isLoading = true;
+        generateBtn.disabled = true;
+        refreshBtn.innerHTML = '<span class="loading"></span> Atualizando...';
+        refreshBtn.disabled = true;
+        
+        fetch('https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil')
+          .then(response => {
+            if (!response.ok) throw new Error('API indisponível');
+            return response.json();
+          })
+          .then(data => {
+            resultados = Array.isArray(data) ? data : [data];
+            resultados = resultados.map(item => ({
+              concurso: item.numero,
+              data: item.dataApuracao,
+              numeros: item.listaDezenas.map(Number).sort((a, b) => a - b)
+            }));
+            
+            showSuccess('Dados atualizados com sucesso!');
+            calcularEstatisticas();
+            updateCharts();
+          })
+          .catch(error => {
+            console.error("Erro ao carregar dados:", error);
+            useSampleData();
+          })
+          .finally(() => {
+            isLoading = false;
+            resetButtons();
+          });
+      }
+      
+      function useSampleData() {
+        resultados = [
+          { concurso: 2900, data: "01/04/2025", numeros: [1, 2, 3, 5, 8, 9, 12, 14, 16, 18, 20, 21, 23, 24, 25] },
+          { concurso: 2899, data: "30/03/2025", numeros: [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 22, 23, 24, 25, 10] },
+          { concurso: 2898, data: "27/03/2025", numeros: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 1, 3, 5] },
+          { concurso: 2897, data: "25/03/2025", numeros: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 2, 4] },
+          { concurso: 2896, data: "23/03/2025", numeros: [5, 10, 15, 20, 25, 4, 9, 14, 19, 24, 3, 8, 13, 18, 23] }
+        ];
+        
+        showWarning('Usando dados de exemplo. Atualize para obter os últimos resultados.');
+        calcularEstatisticas();
+        updateCharts();
+      }
+      
+      function resetButtons() {
+        generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
+        generateBtn.disabled = false;
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
+        refreshBtn.disabled = false;
+      }
+      
+      function generateGames() {
+        if (isLoading) return;
+        
+        const quantity = parseInt(document.getElementById('gameQuantity').value);
+        const [minMissing, maxMissing] = document.getElementById('missingRange').value.split('-').map(Number);
+        const lastGames = parseInt(document.getElementById('lastGames').value);
+        const fixedNumbers = validateNumberInput(document.getElementById('fixedNumbers').value.trim());
+        const excludedNumbers = validateNumberInput(document.getElementById('excludedNumbers').value.trim());
+        const maxLastDrawAllowed = parseInt(document.getElementById('maxLastDraw').value);
+        const balanceMode = document.getElementById('balanceMode').value;
+        
+        if (fixedNumbers.length > 15) {
+          showError('Você pode fixar no máximo 15 números.');
+          return;
+        }
+        
+        if (excludedNumbers.length > 20) {
+          showError('Você pode excluir no máximo 20 números.');
+          return;
+        }
+        
+        if (resultados.length === 0) {
+          showError('Nenhum dado disponível. Tente atualizar.');
+          return;
+        }
+        
+        generateBtn.innerHTML = '<span class="loading"></span> Gerando...';
+        generateBtn.disabled = true;
+        
+        // Processamento assíncrono para não travar a UI
+        setTimeout(() => {
+          const missingNumbers = getMissingNumbers(lastGames).filter(n => !excludedNumbers.includes(n));
+          generatedGames = [];
+          
+          for (let i = 0; i < quantity; i++) {
+            let tentativa = 0;
+            let game;
+            
+            do {
+              game = generateGame(missingNumbers, minMissing, maxMissing, fixedNumbers);
+              tentativa++;
+              
+              // Verificar limite de dezenas do último sorteio
+              const lastResult = resultados[0]?.numeros || [];
+              const countLast = game.numbers.filter(n => lastResult.includes(n)).length;
+              
+              // Verificar balanceamento pares/ímpares
+              const isBalanced = checkBalance(game.numbers, balanceMode);
+              
+              if (countLast <= maxLastDrawAllowed && isBalanced) break;
+            } while (tentativa < 100);
+            
+            generatedGames.push(game);
+          }
+          
+          displayResults(generatedGames, missingNumbers);
+          generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
+          generateBtn.disabled = false;
+        }, 100);
+      }
+      
+      function getMissingNumbers(lastGames) {
+        const recentResults = resultados.slice(0, lastGames);
+        const drawnNumbers = new Set();
+        
+        recentResults.forEach(result => {
+          result.numeros.forEach(num => drawnNumbers.add(num));
+        });
+        
+        return Array.from({length: 25}, (_, i) => i + 1)
+          .filter(num => !drawnNumbers.has(num));
+      }
+      
+      function generateGame(missingNumbers, minMissing, maxMissing, fixedNumbers) {
+        // Quantidade de dezenas faltantes neste jogo (entre min e max)
+        const missingCount = Math.floor(Math.random() * (maxMissing - minMissing + 1)) + minMissing;
+        const selectedMissing = shuffleArray([...missingNumbers]).slice(0, missingCount);
+        
+        // Dezenas que apareceram recentemente (exceto fixas e excluídas)
+        const regularNumbers = Array.from({length: 25}, (_, i) => i + 1)
+          .filter(n => !missingNumbers.includes(n) && !fixedNumbers.includes(n));
+        
+        // Completa com dezenas recentes
+        const regularCount = 15 - selectedMissing.length - fixedNumbers.length;
+        const selectedRegular = shuffleArray(regularNumbers).slice(0, regularCount);
+        
+        return {
+          numbers: [...fixedNumbers, ...selectedMissing, ...selectedRegular].sort((a, b) => a - b),
+          missing: selectedMissing,
+          date: new Date().toLocaleString()
+        };
+      }
+      
+      function checkBalance(numbers, mode) {
+        const pares = numbers.filter(n => n % 2 === 0).length;
+        
+        if (mode === 'none') return true;
+        if (mode === 'normal') return pares >= 6 && pares <= 9;
+        if (mode === 'strict') return pares === 7 || pares === 8;
+        
+        return true;
+      }
+      
+      function shuffleArray(array) {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+      }
+      
+      function displayResults(games, allMissing) {
+        // Atualizar informação de dezenas faltantes
+        missingInfo.innerHTML = `
+          <h3><i class="fas fa-info-circle"></i> Dezenas Faltantes (últimos ${document.getElementById('lastGames').value} concursos)</h3>
+          <div class="game-numbers">
+            ${allMissing.length > 0 ? 
+              allMissing.map(num => `<span class="numero missing">${num.toString().padStart(2, '0')}</span>`).join('') : 
+              '<p>Todas as dezenas apareceram nos últimos concursos</p>'}
+          </div>
+          <p>Total: ${allMissing.length} dezenas não sorteadas recentemente</p>
+        `;
+        
+        // Exibir jogos gerados
+        let html = '';
+        
+        games.forEach((game, index) => {
+          const pares = game.numbers.filter(n => n % 2 === 0).length;
+          const impares = 15 - pares;
+          const sum = game.numbers.reduce((a, b) => a + b, 0);
+          
+          html += `
+            <div class="game-card">
+              <div class="game-header">
+                <h3>Jogo ${index + 1}</h3>
+                <div>
+                  <span class="badge">${game.missing.length} faltantes</span>
+                  <span class="badge" style="background: var(--primary)">${pares}P ${impares}I</span>
+                </div>
+              </div>
+              <div class="game-numbers">
+                ${game.numbers.map(num => `
+                  <span class="numero ${game.missing.includes(num) ? 'missing' : ''}" 
+                    title="${game.missing.includes(num) ? 'Dezena faltante' : 'Dezena recente'}">
+                    ${num.toString().padStart(2, '0')}
+                  </span>
+                `).join('')}
+              </div>
+              <p><small>Soma: ${sum} | ${game.numbers.join(', ')}</small></p>
+            </div>
+          `;
+        });
+        
+        resultsContainer.innerHTML = html;
+      }
+      
+      function calcularEstatisticas() {
+        if (resultados.length === 0) {
+          statsContent.innerHTML = '<p>Nenhum dado disponível.</p>';
+          return;
+        }
+        
+        const todas = resultados.flatMap(r => r.numeros);
+        const contagem = {};
+        
+        for (let i = 1; i <= 25; i++) contagem[i] = 0;
+        todas.forEach(n => contagem[n]++);
+        
+        const lista = Object.entries(contagem).sort((a, b) => b[1] - a[1]);
+        
+        const maisFrequentes = lista.slice(0, 5).map(([n, c]) => `${n} (${c}x)`);
+        const menosFrequentes = lista.slice(-5).map(([n, c]) => `${n} (${c}x)`);
+        
+        const ausencias = {};
+        for (let i = 1; i <= 25; i++) ausencias[i] = 0;
+        
+        resultados.forEach((r, idx) => {
+          for (let i = 1; i <= 25; i++) {
+            if (!r.numeros.includes(i)) {
+              ausencias[i]++;
+            } else {
+              ausencias[i] = 0;
+            }
+          }
+        });
+        
+        const maisAtrasadas = Object.entries(ausencias)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([n, a]) => `${n} (${a} concursos)`);
+        
+        statsContent.innerHTML = `
+          <p><strong>Último sorteio:</strong> Concurso ${resultados[0].concurso} (${resultados[0].data})</p>
+          <p><strong>Dezenas sorteadas:</strong> ${resultados[0].numeros.join(', ')}</p>
+          <p><strong>Dezenas quentes (mais sorteadas):</strong> ${maisFrequentes.join(', ')}</p>
+          <p><strong>Dezenas frias (menos sorteadas):</strong> ${menosFrequentes.join(', ')}</p>
+          <p><strong>Dezenas mais atrasadas:</strong> ${maisAtrasadas.join(', ')}</p>
+        `;
+      }
+      
+      function updateCharts() {
+        if (resultados.length === 0) return;
+        
+        // Dados para gráficos
+        const todas = resultados.flatMap(r => r.numeros);
+        const contagem = {};
+        for (let i = 1; i <= 25; i++) contagem[i] = 0;
+        todas.forEach(n => contagem[n]++);
+        
+        const ausencias = {};
+        for (let i = 1; i <= 25; i++) ausencias[i] = 0;
+        
+        resultados.forEach((r, idx) => {
+          for (let i = 1; i <= 25; i++) {
+            if (!r.numeros.includes(i)) {
+              ausencias[i]++;
+            } else {
+              ausencias[i] = 0;
+            }
+          }
+        });
+        
+        // Configuração dos gráficos
+        const chartOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        };
+        
+        // Gráfico de frequência
+        if (frequencyChart) frequencyChart.destroy();
+        const frequencyCtx = document.getElementById('frequencyChart').getContext('2d');
+        frequencyChart = new Chart(frequencyCtx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(contagem),
+            datasets: [{
+              label: 'Frequência de sorteio',
+              data: Object.values(contagem),
+              backgroundColor: Array.from({length: 25}, (_, i) => 
+                i < 5 ? 'rgba(231, 76, 60, 0.7)' : 
+                i >= 20 ? 'rgba(46, 204, 113, 0.7)' : 
+                'rgba(52, 152, 219, 0.7)'),
+              borderColor: Array.from({length: 25}, (_, i) => 
+                i < 5 ? 'rgba(231, 76, 60, 1)' : 
+                i >= 20 ? 'rgba(46, 204, 113, 1)' : 
+                'rgba(52, 152, 219, 1)'),
+              borderWidth: 1
+            }]
+          },
+          options: chartOptions
+        });
+        
+        // Gráfico de atrasos
+        if (delaysChart) delaysChart.destroy();
+        const delaysCtx = document.getElementById('delaysChart').getContext('2d');
+        delaysChart = new Chart(delaysCtx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(ausencias),
+            datasets: [{
+              label: 'Concursos sem ser sorteada',
+              data: Object.values(ausencias),
+              backgroundColor: Array.from({length: 25}, (_, i) => 
+                Object.values(ausencias)[i] > 10 ? 'rgba(231, 76, 60, 0.7)' : 
+                'rgba(52, 152, 219, 0.7)'),
+              borderColor: Array.from({length: 25}, (_, i) => 
+                Object.values(ausencias)[i] > 10 ? 'rgba(231, 76, 60, 1)' : 
+                'rgba(52, 152, 219, 1)'),
+              borderWidth: 1
+            }]
+          },
+          options: chartOptions
+        });
+      }
+      
+      function saveGames() {
+        if (generatedGames.length === 0) {
+          showError('Nenhum jogo para salvar. Gere jogos primeiro.');
+          return;
+        }
+        
+        const savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || []);
+        const saveDate = new Date().toLocaleString();
+        
+        const gamesToSave = {
+          date: saveDate,
+          games: generatedGames,
+          config: {
+            quantity: document.getElementById('gameQuantity').value,
+            missingRange: document.getElementById('missingRange').value,
+            lastGames: document.getElementById('lastGames').value,
+            fixedNumbers: validateNumberInput(document.getElementById('fixedNumbers').value.trim()),
+            excludedNumbers: validateNumberInput(document.getElementById('excludedNumbers').value.trim()),
+            maxLastDraw: document.getElementById('maxLastDraw').value,
+            balanceMode: document.getElementById('balanceMode').value
+          }
+        };
+        
+        savedGames.unshift(gamesToSave);
+        localStorage.setItem('lotofacilSavedGames', JSON.stringify(savedGames));
+        
+        showSuccess('Jogos salvos com sucesso!');
+        loadSavedGames();
+      }
+      
+      function loadSavedGames() {
+        const savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || []);
+        
+        if (savedGames.length === 0) {
+          savedGamesList.innerHTML = '<p>Nenhum jogo salvo ainda.</p>';
+          return;
+        }
+        
+        let html = '';
+        savedGames.forEach((group, groupIndex) => {
+          html += `
+            <div class="saved-game">
+              <div>
+                <strong>Jogos de ${group.date}</strong>
+                <div class="saved-game-date">
+                  ${group.games.length} jogos | 
+                  Últimos ${group.config.lastGames} concursos | 
+                  ${group.config.missingRange} faltantes
+                </div>
+              </div>
+              <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
+                onclick="loadSavedGame(${groupIndex})">
+                <i class="fas fa-eye"></i> Ver
+              </button>
+            </div>
+          `;
+        });
+        
+        savedGamesList.innerHTML = html;
+      }
+      
+      // Funções auxiliares globais para serem chamadas do HTML
+      window.loadSavedGame = function(index) {
+        const savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || []);
+        if (index >= savedGames.length) return;
+        
+        const savedGame = savedGames[index];
+        
+        // Aplicar configurações salvas
+        document.getElementById('gameQuantity').value = savedGame.config.quantity;
+        document.getElementById('missingRange').value = savedGame.config.missingRange;
+        document.getElementById('lastGames').value = savedGame.config.lastGames;
+        document.getElementById('fixedNumbers').value = savedGame.config.fixedNumbers.join(',');
+        document.getElementById('excludedNumbers').value = savedGame.config.excludedNumbers.join(',');
+        document.getElementById('maxLastDraw').value = savedGame.config.maxLastDraw;
+        document.getElementById('balanceMode').value = savedGame.config.balanceMode;
+        
+        // Atualizar UI
+        updateNumberGridSelection(savedGame.config.fixedNumbers);
+        validateNumberInputs();
+        
+        // Exibir jogos
+        const missingNumbers = getMissingNumbers(savedGame.config.lastGames)
+          .filter(n => !savedGame.config.excludedNumbers.includes(n));
+        
+        displayResults(savedGame.games, missingNumbers);
+        showSuccess(`Jogos carregados (salvos em ${savedGame.date})`);
+      };
+      
+      function showSuccess(message) {
+        missingInfo.innerHTML = `<p style="color: var(--success);"><i class="fas fa-check-circle"></i> ${message}</p>`;
+      }
+      
+      function showWarning(message) {
+        missingInfo.innerHTML = `<p style="color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> ${message}</p>`;
+      }
+      
+      function showError(message) {
+        missingInfo.innerHTML = `<p style="color: var(--danger);"><i class="fas fa-times-circle"></i> ${message}</p>`;
+      }
+    });
+  </script>
 </body>
 </html>
