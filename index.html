@@ -465,6 +465,7 @@
             let resultados = [];
             let isLoading = false;
             let generatedGames = [];
+            let lastUpdateAttempt = 0;
             
             // Inicialização
             initNumberGrid();
@@ -497,10 +498,53 @@
             }
             
             function setupEventListeners() {
-                // Botões
-                generateBtn.addEventListener('click', generateGames);
-                refreshBtn.addEventListener('click', loadData);
-                saveGamesBtn.addEventListener('click', saveGames);
+                // Botão Gerar Jogos
+                generateBtn.addEventListener('click', function() {
+                    if (isLoading) {
+                        showStatus('Aguarde, os dados estão sendo carregados...', 'warning');
+                        return;
+                    }
+                    
+                    if (resultados.length === 0) {
+                        showStatus('Nenhum dado disponível. Atualize os dados primeiro.', 'error');
+                        refreshBtn.focus();
+                        return;
+                    }
+                    
+                    generateGames();
+                });
+                
+                // Botão Atualizar Dados
+                refreshBtn.addEventListener('click', function() {
+                    const now = Date.now();
+                    if (isLoading) {
+                        showStatus('Já está atualizando, aguarde...', 'warning');
+                        return;
+                    }
+                    
+                    // Prevenir atualizações muito rápidas (mínimo 10 segundos entre tentativas)
+                    if (now - lastUpdateAttempt < 10000) {
+                        const secondsLeft = Math.ceil((10000 - (now - lastUpdateAttempt)) / 1000);
+                        showStatus(`Aguarde ${secondsLeft} segundos antes de atualizar novamente`, 'warning');
+                        return;
+                    }
+                    
+                    lastUpdateAttempt = now;
+                    loadData();
+                });
+                
+                // Botão Salvar Jogos
+                saveGamesBtn.addEventListener('click', function() {
+                    if (generatedGames.length === 0) {
+                        showStatus('Nenhum jogo para salvar. Gere jogos primeiro.', 'error');
+                        generateBtn.focus();
+                        return;
+                    }
+                    
+                    if (confirm('Deseja salvar estes jogos?')) {
+                        saveGames();
+                    }
+                });
                 
                 // Tabs
                 tabs.forEach(tab => {
@@ -529,7 +573,6 @@
                     generateBtn.disabled = true;
                 } else {
                     fixedNumbersError.textContent = '';
-                    generateBtn.disabled = isLoading;
                 }
                 
                 // Valida números excluídos
@@ -539,11 +582,14 @@
                     generateBtn.disabled = true;
                 } else {
                     excludedNumbersError.textContent = '';
-                    generateBtn.disabled = isLoading;
                 }
                 
                 // Atualiza grid de seleção
                 updateNumberGridSelection(fixedNumbers);
+                
+                // Atualiza estado do botão
+                generateBtn.disabled = isLoading || resultados.length === 0 || 
+                    fixedNumbers.length > 15 || excludedNumbers.length > 20;
             }
             
             function validateNumberInput(input) {
@@ -562,61 +608,83 @@
                 });
             }
             
-            function loadData() {
+            async function loadData() {
                 if (isLoading) return;
                 
                 isLoading = true;
-                generateBtn.disabled = true;
-                refreshBtn.innerHTML = '<span class="loading"></span> Atualizando...';
-                refreshBtn.disabled = true;
+                updateButtonStates();
+                showStatus('Conectando ao servidor de resultados...', 'info');
                 
-                showStatus('Atualizando dados dos últimos concursos...', 'info');
-                
-                // Tenta primeiro a API oficial
-                fetch('https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil')
-                    .then(response => {
-                        if (!response.ok) throw new Error('API oficial indisponível');
-                        return response.json();
-                    })
-                    .then(data => {
-                        resultados = Array.isArray(data) ? data : [data];
-                        resultados = resultados.map(item => ({
-                            concurso: item.numero,
-                            data: item.dataApuracao,
-                            numeros: item.listaDezenas.map(Number).sort((a, b) => a - b)
-                        }));
-                        
+                try {
+                    // Tentativa com API oficial
+                    let data = await tryFetch('https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil');
+                    
+                    // Se falhar, tentar API alternativa
+                    if (!data) {
+                        showStatus('Tentando fonte alternativa de dados...', 'warning');
+                        data = await tryFetch('https://loteriascaixa-api.herokuapp.com/api/lotofacil');
+                    }
+                    
+                    // Se ainda sem dados, usar exemplos
+                    if (!data) {
+                        useSampleData();
+                        showStatus('Usando dados de exemplo. Atualize mais tarde para obter dados reais.', 'warning');
+                    } else {
+                        processData(data);
                         showStatus('Dados atualizados com sucesso!', 'success');
-                        calcularEstatisticas();
-                        updateCharts();
-                    })
-                    .catch(error => {
-                        console.error("Erro ao carregar dados da API oficial:", error);
-                        // Se a API oficial falhar, tenta uma alternativa
-                        return fetch('https://loteriascaixa-api.herokuapp.com/api/lotofacil')
-                            .then(response => {
-                                if (!response.ok) throw new Error('API alternativa indisponível');
-                                return response.json();
-                            })
-                            .then(data => {
-                                resultados = data.slice(0, 20).map(item => ({
-                                    concurso: item.concurso,
-                                    data: item.data,
-                                    numeros: item.dezenas.map(Number).sort((a, b) => a - b)
-                                }));
-                                showStatus('Dados carregados da API alternativa', 'warning');
-                                calcularEstatisticas();
-                                updateCharts();
-                            })
-                            .catch(error => {
-                                console.error("Erro ao carregar dados da API alternativa:", error);
-                                useSampleData();
-                            });
-                    })
-                    .finally(() => {
-                        isLoading = false;
-                        resetButtons();
-                    });
+                    }
+                } catch (error) {
+                    console.error("Erro ao carregar dados:", error);
+                    showStatus('Falha ao carregar dados. Verifique sua conexão.', 'error');
+                } finally {
+                    isLoading = false;
+                    updateButtonStates();
+                }
+            }
+            
+            async function tryFetch(url) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Resposta não OK');
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Erro ao acessar ${url}:`, error);
+                    return null;
+                }
+            }
+            
+            function processData(data) {
+                if (Array.isArray(data)) {
+                    resultados = data.map(processResultItem);
+                } else {
+                    resultados = [processResultItem(data)];
+                }
+                
+                // Limitar aos últimos 20 resultados
+                resultados = resultados.slice(0, 20);
+                calcularEstatisticas();
+                updateCharts();
+            }
+            
+            function processResultItem(item) {
+                return {
+                    concurso: item.numero || item.concurso,
+                    data: item.dataApuracao || item.data,
+                    numeros: (item.listaDezenas || item.dezenas || []).map(Number).sort((a, b) => a - b)
+                };
+            }
+            
+            function updateButtonStates() {
+                generateBtn.disabled = isLoading || resultados.length === 0;
+                refreshBtn.disabled = isLoading;
+                
+                if (isLoading) {
+                    generateBtn.innerHTML = '<span class="loading"></span> Aguarde...';
+                    refreshBtn.innerHTML = '<span class="loading"></span> Atualizando...';
+                } else {
+                    generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
+                }
             }
             
             function useSampleData() {
@@ -628,16 +696,8 @@
                     { concurso: 2896, data: "23/03/2025", numeros: [5, 10, 15, 20, 25, 4, 9, 14, 19, 24, 3, 8, 13, 18, 23] }
                 ];
                 
-                showStatus('Usando dados de exemplo. Atualize para obter os últimos resultados.', 'warning');
                 calcularEstatisticas();
                 updateCharts();
-            }
-            
-            function resetButtons() {
-                generateBtn.innerHTML = '<i class="fas fa-dice"></i> Gerar Jogos';
-                generateBtn.disabled = false;
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
-                refreshBtn.disabled = false;
             }
             
             function generateGames() {
@@ -923,123 +983,143 @@
             }
             
             function saveGames() {
-                if (generatedGames.length === 0) {
-                    showStatus('Nenhum jogo para salvar. Gere jogos primeiro.', 'error');
-                    return;
-                }
-                
-                let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]';
-                if (typeof savedGames === 'string') {
-                    savedGames = JSON.parse(savedGames);
-                }
-                
-                const saveDate = new Date().toLocaleString();
-                
-                const gamesToSave = {
-                    date: saveDate,
-                    games: generatedGames,
-                    config: {
-                        quantity: document.getElementById('gameQuantity').value,
-                        missingRange: document.getElementById('missingRange').value,
-                        lastGames: document.getElementById('lastGames').value,
-                        fixedNumbers: validateNumberInput(document.getElementById('fixedNumbers').value.trim()),
-                        excludedNumbers: validateNumberInput(document.getElementById('excludedNumbers').value.trim()),
-                        maxLastDraw: document.getElementById('maxLastDraw').value,
-                        balanceMode: document.getElementById('balanceMode').value
+                try {
+                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
+                    
+                    // Limitar a 10 conjuntos de jogos salvos
+                    if (savedGames.length >= 10) {
+                        if (!confirm('Você já tem 10 conjuntos salvos. Deseja substituir o mais antigo?')) {
+                            return;
+                        }
+                        savedGames = savedGames.slice(0, 9);
                     }
+                    
+                    const gamesToSave = {
+                        date: new Date().toLocaleString(),
+                        games: generatedGames,
+                        config: getCurrentConfig()
+                    };
+                    
+                    savedGames.unshift(gamesToSave);
+                    localStorage.setItem('lotofacilSavedGames', JSON.stringify(savedGames));
+                    
+                    showStatus(`Jogos salvos com sucesso! Total: ${savedGames.length} conjuntos`, 'success');
+                    loadSavedGames();
+                } catch (error) {
+                    console.error("Erro ao salvar jogos:", error);
+                    showStatus('Erro ao salvar jogos. O localStorage pode estar cheio.', 'error');
+                }
+            }
+            
+            function getCurrentConfig() {
+                return {
+                    quantity: document.getElementById('gameQuantity').value,
+                    missingRange: document.getElementById('missingRange').value,
+                    lastGames: document.getElementById('lastGames').value,
+                    fixedNumbers: validateNumberInput(document.getElementById('fixedNumbers').value.trim()),
+                    excludedNumbers: validateNumberInput(document.getElementById('excludedNumbers').value.trim()),
+                    maxLastDraw: document.getElementById('maxLastDraw').value,
+                    balanceMode: document.getElementById('balanceMode').value
                 };
-                
-                savedGames.unshift(gamesToSave);
-                localStorage.setItem('lotofacilSavedGames', JSON.stringify(savedGames));
-                
-                showStatus('Jogos salvos com sucesso!', 'success');
-                loadSavedGames();
             }
             
             function loadSavedGames() {
-                let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
-                if (typeof savedGames === 'string') {
-                    savedGames = JSON.parse(savedGames);
-                }
-                
-                if (savedGames.length === 0) {
-                    savedGamesList.innerHTML = '<p>Nenhum jogo salvo ainda.</p>';
-                    return;
-                }
-                
-                let html = '';
-                savedGames.forEach((group, groupIndex) => {
-                    html += `
-                        <div class="saved-game">
-                            <div>
-                                <strong>Jogos de ${group.date}</strong>
-                                <div class="saved-game-date">
-                                    ${group.games.length} jogos | 
-                                    Últimos ${group.config.lastGames} concursos | 
-                                    ${group.config.missingRange} faltantes
+                try {
+                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || [];
+                    
+                    if (savedGames.length === 0) {
+                        savedGamesList.innerHTML = '<p>Nenhum jogo salvo ainda.</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    savedGames.forEach((group, groupIndex) => {
+                        html += `
+                            <div class="saved-game">
+                                <div>
+                                    <strong>Jogos de ${group.date}</strong>
+                                    <div class="saved-game-date">
+                                        ${group.games.length} jogos | 
+                                        Últimos ${group.config.lastGames} concursos | 
+                                        ${group.config.missingRange} faltantes
+                                    </div>
                                 </div>
+                                <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
+                                    onclick="loadSavedGame(${groupIndex})">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
                             </div>
-                            <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
-                                onclick="window.loadSavedGame(${groupIndex})">
-                                <i class="fas fa-eye"></i> Ver
-                            </button>
-                        </div>
-                    `;
-                });
-                
-                savedGamesList.innerHTML = html;
+                        `;
+                    });
+                    
+                    savedGamesList.innerHTML = html;
+                } catch (error) {
+                    console.error("Erro ao carregar jogos salvos:", error);
+                    savedGamesList.innerHTML = '<p class="error-message">Erro ao carregar jogos salvos</p>';
+                }
             }
             
-            // Função para exibir mensagens de status
             function showStatus(message, type = 'info') {
+                const icons = {
+                    error: 'times-circle',
+                    success: 'check-circle',
+                    warning: 'exclamation-triangle',
+                    info: 'info-circle'
+                };
+                
                 statusMessage.innerHTML = `
                     <div class="${type}-message">
-                        <i class="fas fa-${type === 'error' ? 'times-circle' : 
-                                         type === 'success' ? 'check-circle' : 
-                                         type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                        <i class="fas fa-${icons[type]}"></i>
                         ${message}
                     </div>
                 `;
                 
-                // Remove a mensagem após 5 segundos (exceto para erros)
+                // Remove mensagem após 5 segundos (exceto erros)
                 if (type !== 'error') {
                     setTimeout(() => {
-                        statusMessage.innerHTML = '';
+                        if (statusMessage.innerHTML.includes(message)) {
+                            statusMessage.innerHTML = '';
+                        }
                     }, 5000);
                 }
             }
             
             // Função global para carregar jogos salvos
             window.loadSavedGame = function(index) {
-                let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || '[]');
-                if (typeof savedGames === 'string') {
-                    savedGames = JSON.parse(savedGames);
+                try {
+                    let savedGames = JSON.parse(localStorage.getItem('lotofacilSavedGames') || [];
+                    
+                    if (index >= savedGames.length) {
+                        showStatus('Conjunto de jogos não encontrado', 'error');
+                        return;
+                    }
+                    
+                    const savedGame = savedGames[index];
+                    
+                    // Aplicar configurações salvas
+                    document.getElementById('gameQuantity').value = savedGame.config.quantity;
+                    document.getElementById('missingRange').value = savedGame.config.missingRange;
+                    document.getElementById('lastGames').value = savedGame.config.lastGames;
+                    document.getElementById('fixedNumbers').value = savedGame.config.fixedNumbers.join(',');
+                    document.getElementById('excludedNumbers').value = savedGame.config.excludedNumbers.join(',');
+                    document.getElementById('maxLastDraw').value = savedGame.config.maxLastDraw;
+                    document.getElementById('balanceMode').value = savedGame.config.balanceMode;
+                    
+                    // Atualizar UI
+                    updateNumberGridSelection(savedGame.config.fixedNumbers);
+                    validateNumberInputs();
+                    
+                    // Exibir jogos
+                    const missingNumbers = getMissingNumbers(savedGame.config.lastGames)
+                        .filter(n => !savedGame.config.excludedNumbers.includes(n));
+                    
+                    generatedGames = savedGame.games;
+                    displayResults(savedGame.games, missingNumbers);
+                    showStatus(`Jogos carregados (salvos em ${savedGame.date})`, 'success');
+                } catch (error) {
+                    console.error("Erro ao carregar jogo salvo:", error);
+                    showStatus('Erro ao carregar jogo salvo', 'error');
                 }
-                
-                if (index >= savedGames.length) return;
-                
-                const savedGame = savedGames[index];
-                
-                // Aplicar configurações salvas
-                document.getElementById('gameQuantity').value = savedGame.config.quantity;
-                document.getElementById('missingRange').value = savedGame.config.missingRange;
-                document.getElementById('lastGames').value = savedGame.config.lastGames;
-                document.getElementById('fixedNumbers').value = savedGame.config.fixedNumbers.join(',');
-                document.getElementById('excludedNumbers').value = savedGame.config.excludedNumbers.join(',');
-                document.getElementById('maxLastDraw').value = savedGame.config.maxLastDraw;
-                document.getElementById('balanceMode').value = savedGame.config.balanceMode;
-                
-                // Atualizar UI
-                updateNumberGridSelection(savedGame.config.fixedNumbers);
-                validateNumberInputs();
-                
-                // Exibir jogos
-                const missingNumbers = getMissingNumbers(savedGame.config.lastGames)
-                    .filter(n => !savedGame.config.excludedNumbers.includes(n));
-                
-                generatedGames = savedGame.games;
-                displayResults(savedGame.games, missingNumbers);
-                showStatus(`Jogos carregados (salvos em ${savedGame.date})`, 'success');
             };
         });
     </script>
